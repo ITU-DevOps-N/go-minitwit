@@ -1,0 +1,69 @@
+<!-- https://www.calhoun.io/intro-to-templates-p3-functions/ -->
+<!doctype html>
+<title>{% block title %}Welcome{% endblock %} | MiniTwit</title>
+<link rel=stylesheet type=text/css href="{{ url_for('static', filename='style.css') }}">
+<div class=page>
+  <h1>MiniTwit</h1>
+  <div class=navigation>
+  {% if g.user %}
+    <a href="{{ url_for('timeline') }}">my timeline</a> |
+    <a href="{{ url_for('public_timeline') }}">public timeline</a> |
+    <a href="{{ url_for('logout') }}">sign out [{{ g.user.username }}]</a>
+  {% else %}
+    <a href="{{ url_for('public_timeline') }}">public timeline</a> |
+    <a href="{{ url_for('register') }}">sign up</a> |
+    <a href="{{ url_for('login') }}">sign in</a>
+  {% endif %}
+  </div>
+  {% with flashes = get_flashed_messages() %}
+    {% if flashes %}
+      <ul class=flashes>
+      {% for message in flashes %}
+        <li>{{ message }}
+      {% endfor %}
+      </ul>
+    {% endif %}
+  {% endwith %}
+  <div class=body>
+    <h2>Public Timeline</h2>
+    {% if g.user %}
+      {% if request.endpoint == 'user_timeline' %}
+        <div class=followstatus>
+        {% if g.user.user_id == profile_user.user_id %}
+          This is you!
+        {% elif followed %}
+          You are currently following this user.
+          <a class=unfollow href="{{ url_for('unfollow_user', username=profile_user.username)
+            }}">Unfollow user</a>.
+        {% else %}
+          You are not yet following this user.
+          <a class=follow href="{{ url_for('follow_user', username=profile_user.username)
+            }}">Follow user</a>.
+        {% endif %}
+        </div>
+      {% elif request.endpoint == 'timeline' %}
+        <div class=twitbox>
+          <h3>What's on your mind {{ g.user.username }}?</h3>
+          <form action="{{ url_for('add_message') }}" method=post>
+            <p><input type=text name=text size=60><!--
+            --><input type=submit value="Share">
+          </form>
+        </div>
+      {% endif %}
+    {% endif %}
+    <ul class=messages>
+    {% for message in messages %}
+      <li><img src="{{ message.email|gravatar(size=48) }}"><p>
+        <strong><a href="{{ url_for('user_timeline', username=message.username)
+        }}">{{ message.username }}</a></strong>
+        {{ message.text }}
+        <small>&mdash; {{ message.pub_date|datetimeformat }}</small>
+    {% else %}
+      <li><em>There's no message so far.</em>
+    {% endfor %}
+    </ul>
+  </div>
+  <div class=footer>
+    MiniTwit &mdash; A Flask Application
+  </div>
+</div>
