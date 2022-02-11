@@ -26,12 +26,15 @@ type App struct {
 }
 
 // DB table structure
+// TODO: field tags (primaryKeys etc.)
 type follower struct {
+	gorm.Model
 	who_id  int
 	whom_id int
 }
 
 type message struct {
+	gorm.Model
 	message_id int
 	author_id  int
 	text       string
@@ -40,6 +43,7 @@ type message struct {
 }
 
 type user struct {
+	gorm.Model
 	user_id  int
 	username string
 	email    string
@@ -47,6 +51,7 @@ type user struct {
 }
 
 type Timeline struct {
+	gorm.Model
 	Title    string
 	Messages []message
 }
@@ -59,12 +64,12 @@ func (a *App) Initialize(dbDriver string, dbURI string) {
 	a.DB = db
 
 	// Migrate the schema.
-	a.DB.AutoMigrate(&user{})
+	a.DB.AutoMigrate(&user{}, &follower{}, &message{}, &Timeline{})
 }
 
 func main() {
 	a := &App{}
-	a.Initialize("sqlite3", "test.db")
+	a.Initialize("sqlite3", "minitwit.db")
 
 	http.HandleFunc("/", a.handler)
 	if err := http.ListenAndServe(":8080", nil); err != nil {
@@ -75,19 +80,19 @@ func main() {
 }
 
 func (a *App) handler(w http.ResponseWriter, r *http.Request) {
-	// Create a test Star.
-	a.DB.Create(&user{username: "test"})
+	// // Create a test user.
+	// a.DB.Create(&user{username: "Testname"})
 
-	// Read from DB.
-	var user1 user
-	a.DB.First(&user1, "name = ?", "test")
+	// // Read from DB.
+	// var user1 user
+	// a.DB.First(&user1, "username = ?", "Testname")
 
 	// Write to HTTP response.
 	w.WriteHeader(200)
-	w.Write([]byte(user1.username))
+	w.Write([]byte("hello world"))
 
-	// Delete.
-	a.DB.Delete(&user1)
+	// // Delete.
+	// a.DB.Delete(&user1)
 }
 
 /** GIAN MARCO **/
