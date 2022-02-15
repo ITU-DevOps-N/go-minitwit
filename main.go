@@ -24,14 +24,37 @@ import (
 
 var DB *gorm.DB
 
-func gintest() {
-	r := gin.Default()
+func healtz(c *gin.Context) {
+	c.JSON(http.StatusOK, gin.H{"Status": "Working good :)"})
+}
 
-	r.GET("/", func(c *gin.Context) {
-		c.JSON(http.StatusOK, gin.H{"data": "hello world"})
-	})
 
-	r.Run()
+
+func testDB() {
+
+	// Create
+	DB.Create(&model.User{Username: "emilravn", Email: "erav@itu.dk", Password: "123test"})
+	DB.Create(&model.User{Username: "gianmarco", Email: "gimu@itu.dk", Password: "123test"})
+	DB.Create(&model.User{Username: "tor", Email: "tor@itu.dk", Password: "123test"})
+	DB.Create(&model.User{Username: "alex", Email: "alex@itu.dk", Password: "123test"})
+	DB.Create(&model.User{Username: "henri", Email: "henri@itu.dk", Password: "123test"})
+
+	DB.Create(&model.Message{AuthorID: 1, Text: "Hello World! My name is Emil Ravn"})
+	DB.Create(&model.Message{AuthorID: 2, Text: "Hello World! My name is Gianmarco"})
+	DB.Create(&model.Message{AuthorID: 3, Text: "Hello World! My name is Tor"})
+	DB.Create(&model.Message{AuthorID: 4, Text: "Hello World! My name is Alex"})
+	DB.Create(&model.Message{AuthorID: 5, Text: "Hello World! My name is Henri"})
+
+	user := model.User{}
+	follower := model.User{}
+	DB.Where("ID = ?", 2).First(&follower)
+	DB.Where("ID = ?", 1).First(&user)
+	user_followers := append(user.Followers, follower) // This still doesn't work
+
+	// user.Followers = append(user.Followers, follower)
+	// DB.Save(&user)
+	DB.Model(&user).Update("Followers", user_followers)
+
 }
 
 func SetupDB() {
@@ -44,129 +67,51 @@ func SetupDB() {
 	// Migrate the entire table schema to the file according to our models
 	db.AutoMigrate(&model.User{}, &model.Message{})
 
-	// Create
-	db.Create(&model.User{Username: "emilravn", Email: "erav@itu.dk", Password: "123test"})
-	
 	DB = db
-	
-}
-func FindBooks(c *gin.Context) {
-	var messages []model.Message
 
-	DB.Find(&messages)
+	testDB()
+
+}
+func getUsers(c *gin.Context) {
+	var users []model.User
+
+	DB.Find(&users)
 	// model.db.Find(&books)
 
-  
-	c.JSON(http.StatusOK, gin.H{"data": messages})
-  }
-
-func main(){
-	r := gin.Default()
-
-  	SetupDB() // new
-	r.GET("/messages", FindBooks) // new
-
-
-	
-
-  	r.Run()
+	c.JSON(http.StatusOK, gin.H{"data": users})
 }
 
+func getMessages(c *gin.Context) {
+	var users []model.User
 
-// 	http.HandleFunc("/", a.handler)
-// 	if err := http.ListenAndServe(":8080", nil); err != nil {
-// 		panic(err)
-// 	}
+	DB.Find(&users)
+	// model.db.Find(&books)
 
-// 	defer a.DB.Close()
-// }
+	c.JSON(http.StatusOK, gin.H{"data": users})
+}
 
-// func (a *App) handler(w http.ResponseWriter, r *http.Request) {
-// 	// // Create a test user.
-// 	// a.DB.Create(&user{username: "Testname"})
+func timeline(c *gin.Context){
+	DB.Where("message.flagged = 0 and message.author_id = user.user_id and (user.user_id = ? or user.user_id in (select whom_id from follower where who_id = ?))")
 
-// 	// // Read from DB.
-// 	// var user1 user
-// 	// a.DB.First(&user1, "username = ?", "Testname")
+	//  query_db('''
+    //     select message.*, user.* from message, user
+    //     where message.flagged = 0 and message.author_id = user.user_id and (
+    //         user.user_id = ? or
+    //         user.user_id in (select whom_id from follower
+    //                                 where who_id = ?))
+    //     order by message.pub_date desc limit ?''',
+    //     [session['user_id'], session['user_id'], PER_PAGE]))
 
-// 	// Write to HTTP response.
-// 	w.WriteHeader(200)
-// 	w.Write([]byte("hello world"))
+}
 
-// 	// // Delete.
-// 	// a.DB.Delete(&user1)
-// }
+func main() {
+	r := gin.Default()
 
-// /** GIAN MARCO **/
-// // configuration
-
-// var DATABASE = "./minitwit.db"
-// var PER_PAGE = 30
-// var DEBUG = true
-// var SECRET_KEY = "development key"
-
-// // create our little application
-// var app = ""
-
-// func main() {
-// 	log.Println("starting API server")
-// 	// create a new router
-// 	router := mux.NewRouter()
-// 	log.Println("creating routes")
-// 	// specify endpoints
-// 	router.HandleFunc("/", public_timeline)
-
-// 	http.Handle("/", router)
-
-// 	//start and listen to requests
-// 	http.ListenAndServe(":8080", router)
-// }
-
-// func db() Timeline {
-// 	db, err := sql.Open("sqlite3", DATABASE)
-// 	checkErr(err)
-
-// 	stmt, err := db.Prepare("select message.*, user.* from message, user where message.flagged = 0 and message.author_id = user.user_id order by message.pub_date desc limit ?")
-// 	checkErr(err)
-
-// 	rows, err := stmt.Query(PER_PAGE)
-// 	checkErr(err)
-
-// 	var message_id int
-// 	var author_id int
-// 	var text string
-// 	var pub_date int
-// 	var flagged int
-
-// 	var user_id int
-// 	var username string
-// 	var email string
-// 	var pw_hash string
-
-// 	var timeline Timeline
-// 	timeline.Messages = make([]message, 0)
-// 	for rows.Next() {
-// 		err = rows.Scan(&message_id, &author_id, &text, &pub_date, &flagged, &user_id, &username, &email, &pw_hash) //(&uid, &username, &department, &created)
-// 		checkErr(err)
-
-// 		timeline.Messages = append(timeline.Messages, message{message_id, author_id, text, pub_date, flagged})
-// 	}
-// 	return timeline
-// }
-
-// func public_timeline(w http.ResponseWriter, r *http.Request) {
-// 	// baseURL := *url.URL
-// 	// fmap := template.FuncMap{
-// 	// 	"url_for": func(path string) string {
-// 	// 		return baseURL.String() + path
-// 	// 	},
-
-// 	// }
-// 	template.Must(template.ParseFiles("templates/timeline-test.html")).Execute(w, db())
-// }
-
-// func checkErr(err error) {
-// 	if err != nil {
-// 		panic("failed to connect database " + err.Error())
-// 	}
-// }
+	SetupDB()
+	r.GET("/info", healtz)
+	r.GET("/", timeline)
+	r.GET("/users", getUsers)
+	r.GET("/messages", getMessages)
+	
+	r.Run()
+}
