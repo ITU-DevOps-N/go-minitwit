@@ -1,11 +1,11 @@
-package model
+package models
 
 import "time"
 
 type Message struct {
-	MessageID uint `gorm:"primaryKey"`
-	UserID    uint // A message belongs to a single user
-	Text      string
-	CreatedAt time.Time
-	Flagged   int
+	MessageID uint      `json:"messageID" gorm:"primaryKey"`
+	AuthorID  uint      `json:"authorID"`
+	Text      string    `json:"text"`
+	CreatedAt time.Time `json:"createdAt"`
+	Flagged   bool      `json:"flagged"`
 }

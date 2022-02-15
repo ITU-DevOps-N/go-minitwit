@@ -11,50 +11,67 @@ package main
 */
 
 import (
-	// "fmt"
+	"fmt"
 	// "strings"
 	// "html/template"
-	// "net/http"
+	"net/http"
+
 	model "github.com/ITU-DevOps-N/go-minitwit/models"
+	"github.com/gin-gonic/gin"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 )
 
-func main() {
+var DB *gorm.DB
+
+func gintest() {
+	r := gin.Default()
+
+	r.GET("/", func(c *gin.Context) {
+		c.JSON(http.StatusOK, gin.H{"data": "hello world"})
+	})
+
+	r.Run()
+}
+
+func SetupDB() {
 	db, err := gorm.Open(sqlite.Open("minitwit.db"), &gorm.Config{})
 	if err != nil {
+		fmt.Printf("Error: %s", err.Error())
 		panic("Failed to connect to database.")
 	}
 
-	// Migrate the table schema
-	db.AutoMigrate(&model.User{}, &model.Follower{}, &model.Message{})
+	// Migrate the entire table schema to the file according to our models
+	db.AutoMigrate(&model.User{}, &model.Message{})
 
 	// Create
 	db.Create(&model.User{Username: "emilravn", Email: "erav@itu.dk", Password: "123test"})
+	
+	DB = db
+	
+}
+func FindBooks(c *gin.Context) {
+	var messages []model.Message
+
+	DB.Find(&messages)
+	// model.db.Find(&books)
+
+  
+	c.JSON(http.StatusOK, gin.H{"data": messages})
+  }
+
+func main(){
+	r := gin.Default()
+
+  	SetupDB() // new
+	r.GET("/messages", FindBooks) // new
+
+
+	
+
+  	r.Run()
 }
 
-// App struct to hold a database pointer
-// type App struct {
-// 	DB *gorm.DB
-
-// func (a *App) Initialize(){
-// 	db, err := gorm.Open(sqlite.Open("minitwit.db"), &gorm.Config{})
-
-// 	// db, err := gorm.Open(sqlite.Open("minitwit.db"))
-// 	if err != nil {
-// 		fmt.Printf("Error: %s", err.Error())
-// 		panic("failed to connect database")
-// 	}
-
-// 	a.DB = db
-
-// 	// Migrate the schema.
-// 	a.DB.AutoMigrate(&user{}, &follower{}, &message{}, &Timeline{})
-// }
-
-// func main() {
-// 	a := &App{}
-// 	a.Initialize()
 
 // 	http.HandleFunc("/", a.handler)
 // 	if err := http.ListenAndServe(":8080", nil); err != nil {
