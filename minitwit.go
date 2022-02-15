@@ -12,12 +12,12 @@ package main
 
 import (
 	// "encoding/json"
-	// "fmt"
-
+	"fmt"
+	"gorm.io/gorm"
 	"net/http"
 
-	"github.com/jinzhu/gorm"
-	_ "github.com/mattn/go-sqlite3"
+	"gorm.io/driver/sqlite"
+	// _ "github.com/mattn/go-sqlite3"
 )
 
 // App struct to hold a database pointer
@@ -56,11 +56,15 @@ type Timeline struct {
 	Messages []message
 }
 
-func (a *App) Initialize(dbDriver string, dbURI string) {
-	db, err := gorm.Open(dbDriver, dbURI)
+func (a *App) Initialize(){
+	db, err := gorm.Open(sqlite.Open("minitwit.db"), &gorm.Config{})
+
+	// db, err := gorm.Open(sqlite.Open("minitwit.db"))
 	if err != nil {
+		fmt.Printf("Error: %s", err.Error())
 		panic("failed to connect database")
 	}
+
 	a.DB = db
 
 	// Migrate the schema.
@@ -69,7 +73,7 @@ func (a *App) Initialize(dbDriver string, dbURI string) {
 
 func main() {
 	a := &App{}
-	a.Initialize("sqlite3", "minitwit.db")
+	a.Initialize()
 
 	http.HandleFunc("/", a.handler)
 	if err := http.ListenAndServe(":8080", nil); err != nil {
