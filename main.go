@@ -1,105 +1,86 @@
 package main
 
 /*
-   MiniTwit
+   Go MiniTwit
    ~~~~~~~~
 
-   A microblogging application written with Flask and sqlite3.
+   A microblogging application written in Golang with Gorilla.
 
-   :copyright: (c) 2010 by Armin Ronacher.
+   :copyright: (c) 2022 by DevØps - Group N.
    :license: BSD, see LICENSE for more details.
 */
 
 import (
-	// "encoding/json"
-	"fmt"
-	"gorm.io/gorm"
-	"net/http"
-
+	// "fmt"
+	// "strings"
+	// "html/template"
+	// "net/http"
+	model "github.com/ITU-DevOps-N/go-minitwit/models"
 	"gorm.io/driver/sqlite"
-	// _ "github.com/mattn/go-sqlite3"
+	"gorm.io/gorm"
 )
 
-// App struct to hold a database pointer
-type App struct {
-	DB *gorm.DB
-}
-
-// DB table structure
-// TODO: field tags (primaryKeys etc.)
-type follower struct {
-	gorm.Model
-	who_id  int
-	whom_id int
-}
-
-type message struct {
-	gorm.Model
-	message_id int
-	author_id  int
-	text       string
-	pub_date   int
-	flagged    int
-}
-
-type user struct {
-	gorm.Model
-	user_id  int
-	username string
-	email    string
-	pw_hash  string
-}
-
-type Timeline struct {
-	gorm.Model
-	Title    string
-	Messages []message
-}
-
-func (a *App) Initialize(){
-	db, err := gorm.Open(sqlite.Open("minitwit.db"), &gorm.Config{})
-
-	// db, err := gorm.Open(sqlite.Open("minitwit.db"))
-	if err != nil {
-		fmt.Printf("Error: %s", err.Error())
-		panic("failed to connect database")
-	}
-
-	a.DB = db
-
-	// Migrate the schema.
-	a.DB.AutoMigrate(&user{}, &follower{}, &message{}, &Timeline{})
-}
-
 func main() {
-	a := &App{}
-	a.Initialize()
-
-	http.HandleFunc("/", a.handler)
-	if err := http.ListenAndServe(":8080", nil); err != nil {
-		panic(err)
+	db, err := gorm.Open(sqlite.Open("minitwit.db"), &gorm.Config{})
+	if err != nil {
+		panic("Failed to connect to database.")
 	}
 
-	defer a.DB.Close()
+	// Migrate the table schema
+	db.AutoMigrate(&model.User{}, &model.Follower{}, &model.Message{})
+
+	// Create
+	db.Create(&model.User{Username: "emilravn", Email: "erav@itu.dk", Password: "123test"})
 }
 
-func (a *App) handler(w http.ResponseWriter, r *http.Request) {
-	// // Create a test user.
-	// a.DB.Create(&user{username: "Testname"})
+// App struct to hold a database pointer
+// type App struct {
+// 	DB *gorm.DB
 
-	// // Read from DB.
-	// var user1 user
-	// a.DB.First(&user1, "username = ?", "Testname")
+// func (a *App) Initialize(){
+// 	db, err := gorm.Open(sqlite.Open("minitwit.db"), &gorm.Config{})
 
-	// Write to HTTP response.
-	w.WriteHeader(200)
-	w.Write([]byte("hello world"))
+// 	// db, err := gorm.Open(sqlite.Open("minitwit.db"))
+// 	if err != nil {
+// 		fmt.Printf("Error: %s", err.Error())
+// 		panic("failed to connect database")
+// 	}
 
-	// // Delete.
-	// a.DB.Delete(&user1)
-}
+// 	a.DB = db
 
-/** GIAN MARCO **/
+// 	// Migrate the schema.
+// 	a.DB.AutoMigrate(&user{}, &follower{}, &message{}, &Timeline{})
+// }
+
+// func main() {
+// 	a := &App{}
+// 	a.Initialize()
+
+// 	http.HandleFunc("/", a.handler)
+// 	if err := http.ListenAndServe(":8080", nil); err != nil {
+// 		panic(err)
+// 	}
+
+// 	defer a.DB.Close()
+// }
+
+// func (a *App) handler(w http.ResponseWriter, r *http.Request) {
+// 	// // Create a test user.
+// 	// a.DB.Create(&user{username: "Testname"})
+
+// 	// // Read from DB.
+// 	// var user1 user
+// 	// a.DB.First(&user1, "username = ?", "Testname")
+
+// 	// Write to HTTP response.
+// 	w.WriteHeader(200)
+// 	w.Write([]byte("hello world"))
+
+// 	// // Delete.
+// 	// a.DB.Delete(&user1)
+// }
+
+// /** GIAN MARCO **/
 // // configuration
 
 // var DATABASE = "./minitwit.db"
