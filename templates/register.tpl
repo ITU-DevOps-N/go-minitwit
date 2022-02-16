@@ -1,5 +1,5 @@
 <!doctype html>
-<title> {{.title}}| MiniTwit</title>
+<title> {{.title}} | MiniTwit</title>
 <link rel=stylesheet type=text/css href="/static/style.css">
 
 <div class=page>
@@ -17,13 +17,13 @@
   </div>
   <div class=body>
     <h2>Sign Up</h2>
-    {{ if error }}<div class=error><strong>Error:</strong> {{ error }}</div>{% endif %}
+    {{ if .error }}<div class=error><strong>Error:</strong> {{ .error }}</div>{{ end }}
     <form action="" method=post>
       <dl>
         <dt>Username:
-        <dd><input type=text name=username size=30 value="{{ request.form.username }}">
+        <dd><input type=text name=username size=30 value="{{ .form.username }}">
         <dt>E-Mail:
-        <dd><input type=text name=email size=30 value="{{ request.form.email }}">
+        <dd><input type=text name=email size=30 value="{{ .form.email }}">
         <dt>Password:
         <dd><input type=password name=password size=30>
         <dt>Password <small>(repeat)</small>:

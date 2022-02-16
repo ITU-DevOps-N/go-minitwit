@@ -68,11 +68,24 @@ func SetupDB() {
 	testDB()
 }
 
-func signUp (c *gin.Context) {
-	var user model.User
-	c.BindJSON(&user)
-	DB.Create(&user)
-	c.JSON(http.StatusOK, gin.H{"data": user})
+func signUp(c *gin.Context) {
+	c.HTML(http.StatusOK, "register.tpl", gin.H{
+		"title":    "Sign Up",
+		"endpoint": "user_signup",
+	})
+
+	// var user model.User
+	// var user model.User
+	// c.BindJSON(&user)
+	// DB.Create(&user)
+	// c.JSON(http.StatusOK, gin.H{"data": user})
+}
+
+func login(c *gin.Context) {
+	c.HTML(http.StatusOK, "login.tpl", gin.H{
+		"title":    "Login",
+		"endpoint": "user_login",
+	})
 }
 
 func getUsers(c *gin.Context) {
@@ -92,7 +105,7 @@ func getMessages(user string) []map[string]interface{} {
 		DB.Table("messages").Find(&results)
 	} else {
 		DB.Table("messages").Where("author = ?", user).Find(&results)
-	}	
+	}
 	return results
 }
 
@@ -106,7 +119,7 @@ func timeline(c *gin.Context) {
 
 func user_timeline(c *gin.Context) {
 	user := c.Request.URL.Query().Get("username")
-	
+
 	c.HTML(http.StatusOK, "timeline.tpl", gin.H{
 		"title":    user + "'s Timeline",
 		"endpoint": "timeline",
@@ -115,20 +128,28 @@ func user_timeline(c *gin.Context) {
 }
 
 func main() {
+	// Should be changed to ReleaseMode when we are done coding
 	gin.SetMode(gin.DebugMode)
-	r := gin.Default()
-	r.LoadHTMLGlob("templates/*.tpl")
-	r.Static("/static", "./static")
 
+	router := gin.Default()
+	router.LoadHTMLGlob("templates/*.tpl")
+	router.Static("/static", "./static")
+
+	// Initialize
 	SetupDB()
-	r.GET("/info", healtz)
-	r.GET("/", timeline)
-	r.GET("/public_timeline", timeline)
-	r.GET("/user_timeline", user_timeline)
-	r.GET("/users", getUsers)
-	r.GET("/messages", (func(c *gin.Context) {
+
+	// Endpoints
+	router.GET("/", timeline)
+	router.GET("/info", healtz)
+	router.GET("/public_timeline", timeline)
+	router.GET("/user_timeline", user_timeline)
+	router.GET("/register", signUp)
+	router.GET("/login", login)
+	router.GET("/users", getUsers)
+	router.GET("/messages", (func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{"data": getMessages("")})
 	}))
 
-	r.Run()
+	// Run the application
+	router.Run()
 }
