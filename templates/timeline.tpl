@@ -43,8 +43,7 @@
   <ul class=messages>
   {{ range .messages }}
     <li><img src="http://www.gravatar.com/avatar/{{ .message_id }}?d=identicon&amp;s=48"><p>
-      <strong><a href="/user_timeline?username=.username)
-      }}">{{ .author }}</a></strong>
+      <strong><a href="/user_timeline?username={{.author}}">{{ .author }}</a></strong>
       {{ .text }}
       <small>&mdash; {{ .created_at }}</small>
   {{ else }}
@@ -53,6 +52,6 @@
   </ul>
   </div>
   <div class=footer>
-    MiniTwit &mdash; A Flask Application
+    MiniTwit &mdash; A Gin Application
   </div>
 </div>
