@@ -4,7 +4,7 @@ package main
    Go MiniTwit
    ~~~~~~~~
 
-   A microblogging application written in Golang with Gorilla.
+   A microblogging application written in Golang with Gin.
 
    :copyright: (c) 2022 by DevØps - Group N.
    :license: BSD, see LICENSE for more details.
@@ -12,8 +12,6 @@ package main
 
 import (
 	"fmt"
-	// "strings"
-	// "html/template"
 	"net/http"
 
 	model "github.com/ITU-DevOps-N/go-minitwit/models"
@@ -68,60 +66,69 @@ func SetupDB() {
 	DB = db
 
 	testDB()
-
 }
+
+func signUp (c *gin.Context) {
+	var user model.User
+	c.BindJSON(&user)
+	DB.Create(&user)
+	c.JSON(http.StatusOK, gin.H{"data": user})
+}
+
 func getUsers(c *gin.Context) {
 	var users []model.User
 
 	DB.Find(&users)
 
-
 	c.JSON(http.StatusOK, gin.H{"data": users})
 }
 
-func getMessages() []map[string]interface{} {
+func getMessages(user string) []map[string]interface{} {
 	var messages []model.Message
 
 	DB.Find(&messages)
 	var results []map[string]interface{}
-	DB.Table("messages").Find(&results)
-
+	if user == "" {
+		DB.Table("messages").Find(&results)
+	} else {
+		DB.Table("messages").Where("author = ?", user).Find(&results)
+	}	
 	return results
-	// c.JSON(http.StatusOK, gin.H{"data": messages})
 }
 
 func timeline(c *gin.Context) {
-	// c.JSON(http.StatusOK, gin.H{"data": getMessages()})
 	c.HTML(http.StatusOK, "timeline.tpl", gin.H{
 		"title":    "Timeline",
 		"endpoint": "public_timeline",
-		"messages": getMessages(),
+		"messages": getMessages(""),
 	})
+}
 
-	//  query_db('''
-	//     select message.*, user.* from message, user
-	//     where message.flagged = 0 and message.author_id = user.user_id and (
-	//         user.user_id = ? or
-	//         user.user_id in (select whom_id from follower
-	//                                 where who_id = ?))
-	//     order by message.pub_date desc limit ?''',
-	//     [session['user_id'], session['user_id'], PER_PAGE]))
-
+func user_timeline(c *gin.Context) {
+	user := c.Request.URL.Query().Get("username")
+	
+	c.HTML(http.StatusOK, "timeline.tpl", gin.H{
+		"title":    user + "'s Timeline",
+		"endpoint": "timeline",
+		"messages": getMessages(user),
+	})
 }
 
 func main() {
+	gin.SetMode(gin.DebugMode)
 	r := gin.Default()
 	r.LoadHTMLGlob("templates/*.tpl")
-	r.Static("/css", "static")
+	r.Static("/static", "./static")
 
 	SetupDB()
 	r.GET("/info", healtz)
 	r.GET("/", timeline)
 	r.GET("/public_timeline", timeline)
+	r.GET("/user_timeline", user_timeline)
 	r.GET("/users", getUsers)
 	r.GET("/messages", (func(c *gin.Context) {
-		c.JSON(http.StatusOK, gin.H{"data": getMessages()})
-		}))
+		c.JSON(http.StatusOK, gin.H{"data": getMessages("")})
+	}))
 
 	r.Run()
 }
