@@ -1,5 +1,5 @@
 <!doctype html>
-<title> {{.title}}| MiniTwit</title>
+<title> {{.title}} | MiniTwit</title>
 <link rel=stylesheet type=text/css href="/static/style.css">
 
 <div class=page>
