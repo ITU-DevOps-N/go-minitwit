@@ -112,7 +112,7 @@ func timeline(c *gin.Context) {
 func main() {
 	r := gin.Default()
 	r.LoadHTMLGlob("templates/*.tpl")
-	r.Static("/static", "static")
+	r.Static("/css", "static")
 
 	SetupDB()
 	r.GET("/info", healtz)
