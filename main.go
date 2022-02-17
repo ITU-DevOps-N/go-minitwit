@@ -128,9 +128,13 @@ func signUp(c *gin.Context) {
 }
 
 func login(c *gin.Context) {
+	c.Request.ParseForm()
+	username := c.Request.PostForm.Get("username")
+	password := c.Request.PostForm.Get("password")
+
 	c.HTML(http.StatusOK, "login.tpl", gin.H{
-		"title":    "Login",
-		"endpoint": "user_login",
+		"title":    username,
+		"endpoint": password,
 	})
 }
 
