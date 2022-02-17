@@ -13,6 +13,10 @@ package main
 import (
 	"fmt"
 	"net/http"
+	"net/mail"
+	"net/url"
+
+	"golang.org/x/crypto/bcrypt"
 
 	model "github.com/ITU-DevOps-N/go-minitwit/models"
 	"github.com/gin-gonic/gin"
@@ -29,11 +33,11 @@ func healtz(c *gin.Context) {
 func testDB() {
 
 	// Create
-	DB.Create(&model.User{Username: "emilravn", Email: "erav@itu.dk", Password: "123test"})
-	DB.Create(&model.User{Username: "gianmarco", Email: "gimu@itu.dk", Password: "123test"})
-	DB.Create(&model.User{Username: "tor", Email: "tor@itu.dk", Password: "123test"})
-	DB.Create(&model.User{Username: "alex", Email: "alex@itu.dk", Password: "123test"})
-	DB.Create(&model.User{Username: "henri", Email: "henri@itu.dk", Password: "123test"})
+	createUser("emilravn", "erav@itu.dk", "123test")
+	createUser("gianmarco", "gimu@itu.dk", "123test")
+	createUser("tor", "tor@itu.dk", "123test")
+	createUser("alex", "alex@itu.dk", "123test")
+	createUser("henri", "henri@itu.dk", "123test")
 
 	DB.Create(&model.Message{Author: "emilravn", Text: "Hello World! My name is Emil Ravn"})
 	DB.Create(&model.Message{Author: "gianmarco", Text: "Hello World! My name is Gianmarco"})
@@ -53,6 +57,11 @@ func testDB() {
 
 }
 
+func createUser(username string, email string, password string) {
+	salt := salt()
+	DB.Create(&model.User{Username: username, Email: email, Salt: salt, Password: hash(salt + password)})
+}
+
 func SetupDB() {
 	db, err := gorm.Open(sqlite.Open("minitwit.db"), &gorm.Config{})
 	if err != nil {
@@ -68,17 +77,54 @@ func SetupDB() {
 	testDB()
 }
 
-func signUp(c *gin.Context) {
+func register(c *gin.Context) {
 	c.HTML(http.StatusOK, "register.tpl", gin.H{
 		"title":    "Sign Up",
 		"endpoint": "user_signup",
 	})
+}
 
-	// var user model.User
-	// var user model.User
-	// c.BindJSON(&user)
-	// DB.Create(&user)
-	// c.JSON(http.StatusOK, gin.H{"data": user})
+func validEmail(email string) bool {
+	_, err := mail.ParseAddress(email)
+	return err == nil
+}
+
+func salt() string {
+	bytes, _ := bcrypt.GenerateFromPassword(make([]byte, 8), 8)
+	return string(bytes)
+}
+func hash(password string) string {
+	bytes, _ := bcrypt.GenerateFromPassword([]byte(password), 14)
+	return string(bytes)
+}
+
+func signUp(c *gin.Context) {
+	c.Request.ParseForm()
+	username := c.Request.PostForm.Get("username")
+	email := c.Request.PostForm.Get("email")
+	password1 := c.Request.PostForm.Get("password")
+	password2 := c.Request.PostForm.Get("password2")
+
+	if password1 != password2 {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Passwords do not match"})
+		return
+	}
+
+	if username == "" || email == "" || password1 == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "All fields are required"})
+		return
+	}
+
+	if !validEmail(email) {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Email is not valid"})
+		return
+	}
+
+	createUser(username, email, password1)
+	// c.JSON(http.StatusOK, gin.H{"message": "User created"})
+	location := url.URL{Path: "/login"}
+	c.Redirect(http.StatusFound, location.RequestURI())
+
 }
 
 func login(c *gin.Context) {
@@ -143,7 +189,8 @@ func main() {
 	router.GET("/info", healtz)
 	router.GET("/public_timeline", timeline)
 	router.GET("/user_timeline", user_timeline)
-	router.GET("/register", signUp)
+	router.GET("/register", register)
+	router.POST("/register", signUp)
 	router.GET("/login", login)
 	router.GET("/users", getUsers)
 	router.GET("/messages", (func(c *gin.Context) {
