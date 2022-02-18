@@ -15,52 +15,20 @@ import (
 	"net/http"
 	"net/mail"
 	"net/url"
-	"golang.org/x/crypto/bcrypt"
 	"strings"
 
 	model "github.com/ITU-DevOps-N/go-minitwit/models"
 	"github.com/gin-gonic/gin"
-
+	"golang.org/x/crypto/bcrypt"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 )
 
 var DB *gorm.DB
 
-func healtz(c *gin.Context) {
-	c.JSON(http.StatusOK, gin.H{"Status": "Working good :)"})
-}
-
-func testDB() {
-
-	// Create
-	createUser("emilravn", "erav@itu.dk", "123test")
-	createUser("gianmarco", "gimu@itu.dk", "123test")
-	createUser("tor", "tor@itu.dk", "123test")
-	createUser("alex", "alex@itu.dk", "123test")
-	createUser("henri", "henri@itu.dk", "123test")
-
-	DB.Create(&model.Message{Author: "emilravn", Text: "Hello World! My name is Emil Ravn"})
-	DB.Create(&model.Message{Author: "gianmarco", Text: "Hello World! My name is Gianmarco"})
-	DB.Create(&model.Message{Author: "tor", Text: "Hello World! My name is Tor"})
-	DB.Create(&model.Message{Author: "alex", Text: "Hello World! My name is Alex"})
-	DB.Create(&model.Message{Author: "henri", Text: "Hello World! My name is Henri"})
-
-	// DB.Create(&model.Follow{Follower: 1, Following: 2})
-	// DB.Create(&model.Follow{Follower: 1, Following: 3})
-	// DB.Create(&model.Follow{Follower: 1, Following: 4})
-	// DB.Create(&model.Follow{Follower: 1, Following: 5})
-
-	// DB.Create(&model.Follow{Follower: 2, Following: 1})
-	// DB.Create(&model.Follow{Follower: 2, Following: 3})
-	// DB.Create(&model.Follow{Follower: 2, Following: 4})
-	// DB.Create(&model.Follow{Follower: 2, Following: 5})
-
-}
-
-func createUser(username string, email string, password string) {
-	salt := salt()
-	DB.Create(&model.User{Username: username, Email: email, Salt: salt, Password: hash(salt + password)})
+func CreateUser(username string, email string, password string) {
+	salt := Salt()
+	DB.Create(&model.User{Username: username, Email: email, Salt: salt, Password: Hash(salt + password)})
 }
 
 func SetupDB() {
@@ -69,69 +37,64 @@ func SetupDB() {
 		fmt.Printf("Error: %s", err.Error())
 		panic("Failed to connect to database.")
 	}
-
-	// Migrate the entire table schema to the file according to our models
 	db.AutoMigrate(&model.User{}, &model.Message{}, &model.Follow{})
-
 	DB = db
-
-	// testDB()
 }
 
-func register(c *gin.Context) {
+func Register(c *gin.Context) {
 	c.HTML(http.StatusOK, "register.tpl", gin.H{
 		"title":    "Sign Up",
 		"endpoint": "user_signup",
 	})
 }
 
-func validEmail(email string) bool {
+func ValidEmail(email string) bool {
 	_, err := mail.ParseAddress(email)
 	return err == nil
 }
 
-func salt() string {
+func Salt() string {
 	bytes, _ := bcrypt.GenerateFromPassword(make([]byte, 8), 8)
 	return string(bytes)
 }
-func hash(password string) string {
+
+func Hash(password string) string {
 	bytes, _ := bcrypt.GenerateFromPassword([]byte(password), 14)
 	return string(bytes)
 }
 
-func validRegistration(c *gin.Context, username string, email string, password1 string, password2 string) bool {
+func ValidRegistration(c *gin.Context, username string, email string, password1 string, password2 string) bool {
 	if password1 != password2 {
 		c.HTML(http.StatusOK, "register.tpl", gin.H{
-            "error": "Passwords do not match",
+			"error": "Passwords do not match",
 		})
 		return false
 	}
 	if username == "" || email == "" || password1 == "" {
 		c.HTML(http.StatusOK, "register.tpl", gin.H{
-            "error": "All fields are required",
+			"error": "All fields are required",
 		})
 		return false
 	}
-	if !validEmail(email) {
+	if !ValidEmail(email) {
 		c.HTML(http.StatusOK, "register.tpl", gin.H{
-            "error": "Email is not valid",
+			"error": "Email is not valid",
 		})
 		return false
 	}
 
-	return true	
+	return true
 }
 
-func signUp(c *gin.Context) {
+func SignUp(c *gin.Context) {
 	c.Request.ParseForm()
 	username := c.Request.PostForm.Get("username")
 	email := c.Request.PostForm.Get("email")
 	password1 := c.Request.PostForm.Get("password")
 	password2 := c.Request.PostForm.Get("password2")
 
-	
-	if validRegistration(c, username, email, password1, password2) {
-		createUser(username, email, password1)
+	if ValidRegistration(c, username, email, password1, password2) {
+		CreateUser(username, email, password1)
 		// c.JSON(http.StatusOK, gin.H{"message": "User created"})
 		location := url.URL{Path: "/login"}
 		c.Redirect(http.StatusFound, location.RequestURI())
@@ -145,20 +108,20 @@ func PasswordCompare(salt string, password string, hashedPassword string) error 
 	return err
 }
 
-func validUser(username string, password string) bool {
-	
-	user := getUser(username)
-	
+func ValidUser(username string, password string) bool {
+
+	user := GetUser(username)
+
 	if user.Username == "" {
 		return false
 	}
-	
+
 	err := PasswordCompare(user.Salt, password, user.Password)
-	
+
 	return err == nil
 }
 
-func login(c *gin.Context) {
+func Login(c *gin.Context) {
 	c.Request.ParseForm()
 	// session := sessions.Default(c)
 	username := c.Request.PostForm.Get("username")
@@ -167,166 +130,159 @@ func login(c *gin.Context) {
 	if strings.Trim(username, " ") == "" || strings.Trim(password, " ") == "" {
 		c.HTML(http.StatusOK, "login.tpl", gin.H{
 			"ErrorTitle":   "Empty Fields",
-            "ErrorMessage": "Please fill in all fields",
+			"ErrorMessage": "Please fill in all fields",
 		})
 	}
-	user := getUser(username)
-	if validUser(username, password) {
+	user := GetUser(username)
+	if ValidUser(username, password) {
 		// token := generateSessionToken()
 		// session := sessions.Default(c)
 		// session.Set("id", user.ID)
 		// session.Set("email", user.Email)
 		// session.Save()
-        c.SetCookie("token", user.Username, 3600, "", "", false, true)
+		c.SetCookie("token", user.Username, 3600, "", "", false, true)
 
-    } else {
+	} else {
 		c.HTML(http.StatusOK, "login.tpl", gin.H{
 			"ErrorTitle":   "Login Failed",
-            "ErrorMessage": "Invalid credentials provided",
+			"ErrorMessage": "Invalid credentials provided",
 		})
-    }
-
+	}
 
 	location := url.URL{Path: "/user_timeline"}
 	c.Redirect(http.StatusFound, location.RequestURI())
 }
 
-func logout(c *gin.Context) {
-    c.SetCookie("token", "", -1, "", "", false, true)
+func Logout(c *gin.Context) {
+	c.SetCookie("token", "", -1, "", "", false, true)
 
-    c.Redirect(http.StatusTemporaryRedirect, "/")
+	c.Redirect(http.StatusTemporaryRedirect, "/")
 }
 
-
-func loginPage(c *gin.Context) {
-
+func LoginPage(c *gin.Context) {
 	c.HTML(http.StatusOK, "login.tpl", gin.H{
 		"title":    "username",
 		"endpoint": "password",
 	})
 }
 
-func getUsers(c *gin.Context) {
+func GetUsers(c *gin.Context) {
 	var users []model.User
-
 	DB.Find(&users)
-
 	c.JSON(http.StatusOK, gin.H{"data": users})
 }
 
-func getUser(username string) model.User{
+func GetUser(username string) model.User {
 	var user model.User
 	DB.Where("username = ?", username).First(&user)
 	return user
 }
 
-func getMessages(user string) []map[string]interface{} {
+func GetMessages(user string) []map[string]interface{} {
 	var messages []model.Message
 
 	DB.Find(&messages)
 	var results []map[string]interface{}
 	if user == "" {
-		DB.Table("messages").Find(&results)
+		DB.Table("messages").Order("created_at desc").Find(&results)
 	} else {
-		DB.Table("messages").Where("author = ?", user).Find(&results)
+		DB.Table("messages").Order("created_at desc").Where("author = ?", user).Find(&results)
 	}
 	return results
 }
 
-func timeline(c *gin.Context) {
+func Timeline(c *gin.Context) {
 	user, _ := c.Cookie("token")
 	if user == "" {
 		c.HTML(http.StatusOK, "timeline.tpl", gin.H{
 			"title":    "Timeline",
 			"endpoint": "public_timeline",
-			"messages": getMessages(""),
+			"messages": GetMessages(""),
 		})
 	} else {
 		c.HTML(http.StatusOK, "timeline.tpl", gin.H{
-			"title": "Timeline",
-			"user": user,
+			"title":         "Timeline",
+			"user":          user,
 			"user_timeline": false,
-			"messages": getMessages(""),
+			"messages":      GetMessages(""),
 		})
 	}
 }
 
-func getFollower(follower uint, following uint) bool{
+func GetFollower(follower uint, following uint) bool {
 	var follows []model.Follow
 	DB.Find(&follows).Where("follower = ?", following).Where("following = ?", follower).First(&follows)
 	return len(follows) > 0
 }
 
-func follow(c *gin.Context) {
+func Follow(c *gin.Context) {
 	user_to_follow := c.Request.URL.Query().Get("username")
 	user, _ := c.Cookie("token")
 	if user == "" {
 		panic("You must be logged in to follow users")
 	} else {
-		DB.Create(&model.Follow{Follower: getUser(user).ID, Following: getUser(user_to_follow).ID})
+		DB.Create(&model.Follow{Follower: GetUser(user).ID, Following: GetUser(user_to_follow).ID})
 	}
 	c.Redirect(http.StatusFound, "/user_timeline?username="+user_to_follow)
 }
 
-func unfollow(c *gin.Context) {
+func Unfollow(c *gin.Context) {
 	var follows []model.Follow
 	user_to_follow := c.Request.URL.Query().Get("username")
 	user, _ := c.Cookie("token")
 	if user == "" {
-		panic("You must be logged in to follow users")
+		panic("You must be logged in to follow users.")
 	} else {
-		DB.Where("follower = ?", getUser(user).ID).Where("following = ?", getUser(user_to_follow).ID).Delete(&follows)
+		DB.Where("follower = ?", GetUser(user).ID).Where("following = ?", GetUser(user_to_follow).ID).Delete(&follows)
 
 	}
 	c.Redirect(http.StatusFound, "/user_timeline?username="+user_to_follow)
 }
 
-func user_timeline(c *gin.Context) {
+func UserTimeline(c *gin.Context) {
 	user_query := c.Request.URL.Query().Get("username")
 
 	if user_query != "" {
 		user, err := c.Cookie("token")
 		if user != "" || err != nil {
-			followed := getFollower(getUser(user_query).ID, getUser(user).ID)
+			followed := GetFollower(GetUser(user_query).ID, GetUser(user).ID)
 			var user_page = false
 			if user == user_query {
 				user_page = true
 			}
 			c.HTML(http.StatusOK, "timeline.tpl", gin.H{
-				"title": user_query + "'s Timeline",
+				"title":         user_query + "'s Timeline",
 				"user_timeline": true,
-				"private": true,
-				"user": user_query,
-				"followed": followed,
-				"user_page": user_page,
-				"messages": getMessages(user_query),
+				"private":       true,
+				"user":          user_query,
+				"followed":      followed,
+				"user_page":     user_page,
+				"messages":      GetMessages(user_query),
 			})
 		} else {
-
 			c.HTML(http.StatusOK, "timeline.tpl", gin.H{
-				"title": user_query + "'s Timeline",
+				"title":         user_query + "'s Timeline",
 				"user_timeline": true,
-				"private": true,
-				"messages": getMessages(user_query),
+				"private":       true,
+				"messages":      GetMessages(user_query),
 			})
 		}
-		
 	} else {
 		user, err := c.Cookie("token")
 		if err != nil {
 			c.Redirect(http.StatusTemporaryRedirect, "/public_timeline")
 		}
 		c.HTML(http.StatusOK, "timeline.tpl", gin.H{
-			"title": "My Timeline",
-			"user": user,
-			"private": true,
+			"title":     "My Timeline",
+			"user":      user,
+			"private":   true,
 			"user_page": true,
-			"messages": getMessages(user),
+			"messages":  GetMessages(user),
 		})
 	}
 }
 
-func addMessage(c *gin.Context) {
+func AddMessage(c *gin.Context) {
 	user, _ := c.Cookie("token")
 	if user == "" {
 		c.Redirect(http.StatusTemporaryRedirect, "/")
@@ -334,14 +290,12 @@ func addMessage(c *gin.Context) {
 	message := c.Request.FormValue("message")
 	DB.Create(&model.Message{Author: user, Text: message})
 
-
 	c.Redirect(http.StatusFound, "/user_timeline")
 }
 
 func main() {
-	// Should be changed to ReleaseMode when we are done coding
-	// gin.SetMode(gin.DebugMode)
 
+	// Create our little application
 	router := gin.Default()
 	router.LoadHTMLGlob("templates/*.tpl")
 	router.Static("/static", "./static")
@@ -350,23 +304,21 @@ func main() {
 	SetupDB()
 
 	// Endpoints
-	router.GET("/", timeline)
-	router.GET("/info", healtz)
-	router.GET("/public_timeline", timeline)
-	router.GET("/user_timeline", user_timeline)
-	router.GET("/register", register)
-	router.POST("/register", signUp)
-	router.GET("/login", loginPage)
-	router.POST("/login", login)
-	router.GET("/logout", logout)
-	router.GET("/users", getUsers)
-	router.GET("/follow", follow)
-	router.GET("/unfollow", unfollow)
-	router.POST("/add_message", addMessage)
+	router.GET("/", Timeline)
+	router.GET("/public_timeline", Timeline)
+	router.GET("/user_timeline", UserTimeline)
+	router.GET("/register", Register)
+	router.POST("/register", SignUp)
+	router.GET("/login", LoginPage)
+	router.POST("/login", Login)
+	router.GET("/logout", Logout)
+	router.GET("/users", GetUsers)
+	router.GET("/follow", Follow)
+	router.GET("/unfollow", Unfollow)
+	router.POST("/add_message", AddMessage)
 	router.GET("/messages", (func(c *gin.Context) {
-		c.JSON(http.StatusOK, gin.H{"data": getMessages("")})
+		c.JSON(http.StatusOK, gin.H{"data": GetMessages("")})
 	}))
 
-	// Run the application
 	router.Run()
 }
