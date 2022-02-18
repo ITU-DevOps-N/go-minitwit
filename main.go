@@ -16,6 +16,7 @@ import (
 	"net/mail"
 	"net/url"
 	"strings"
+	"time"
 
 	model "github.com/ITU-DevOps-N/go-minitwit/models"
 	"github.com/gin-gonic/gin"
@@ -288,8 +289,8 @@ func AddMessage(c *gin.Context) {
 		c.Redirect(http.StatusTemporaryRedirect, "/")
 	}
 	message := c.Request.FormValue("message")
-	DB.Create(&model.Message{Author: user, Text: message})
-
+	t := time.Now().Format("02-01-2006")
+	DB.Create(&model.Message{Author: user, Text: message, CreatedAt: t})
 	c.Redirect(http.StatusFound, "/user_timeline")
 }
 
