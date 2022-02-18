@@ -17,6 +17,9 @@
 <div class=body>
   <h2>Sign In</h2>
   {{ if .error }}<div class=error><strong>Error:</strong> {{ .error }}</div>{{ end }}
+  {{ if .ErrorTitle}}
+    <div class=error><strong>{{.ErrorTitle}}</strong> {{.ErrorMessage}}</div>
+  {{end}}
   <form action="" method=post>
     <dl>
       <dt>Username:
