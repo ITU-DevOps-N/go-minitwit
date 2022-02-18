@@ -18,6 +18,7 @@ import (
 
 	"golang.org/x/crypto/bcrypt"
 
+	"github.com/ITU-DevOps-N/go-minitwit/models"
 	model "github.com/ITU-DevOps-N/go-minitwit/models"
 	"github.com/gin-gonic/gin"
 	"gorm.io/driver/sqlite"
@@ -127,15 +128,50 @@ func signUp(c *gin.Context) {
 
 }
 
+// PasswordCompare handles password hash compare
+func PasswordCompare(password []byte, hashedPassword []byte) error {
+	err := bcrypt.CompareHashAndPassword(hashedPassword, password)
+
+	return err
+}
+
 func login(c *gin.Context) {
-	c.Request.ParseForm()
+	var data models.LoginForm
+
+	c.HTML(http.StatusOK, "login.tpl", gin.H{
+		"title":    "username",
+		"endpoint": "password",
+	})
+
 	username := c.Request.PostForm.Get("username")
 	password := c.Request.PostForm.Get("password")
 
-	c.HTML(http.StatusOK, "login.tpl", gin.H{
-		"title":    username,
-		"endpoint": password,
-	})
+	// test := url.UserPassword(username,password)
+
+	hashedPassword := []byte(password)
+	password_given := []byte(data.Password)
+
+	if username == "" {
+		c.JSON(404, gin.H{"message": "User account was not found"})
+		c.Abort()
+		return
+	}
+
+	err := PasswordCompare(password_given, hashedPassword)
+
+	if err != nil {
+		c.JSON(400, gin.H{"message": "Problem logging into your account"})
+		c.Abort()
+		return
+	}
+
+	location := url.URL{Path: "/timeline"}
+	c.Redirect(http.StatusFound, location.RequestURI())
+
+	// c.Request.ParseForm()
+	// username := c.Request.PostForm.Get("username")
+	// password := c.Request.PostForm.Get("password")
+
 }
 
 func getUsers(c *gin.Context) {
