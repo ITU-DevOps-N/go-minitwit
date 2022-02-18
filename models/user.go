@@ -4,7 +4,7 @@ import "time"
 
 type User struct {
 	ID        	uint      `json:"id" gorm:"primary_key"`
-	Username  	string    `json:"username" gorm:"type:varchar(100);not null"`
+	Username  	string    `json:"username" gorm:"unique;type:varchar(100);not null"`
 	Email     	string    `json:"email" gorm:"type:varchar(100);not null"`
 	Salt     	string    `json:"salt" gorm:"type:varchar(100);not null"`
 	Password  	string    `json:"password" gorm:"not null"`
