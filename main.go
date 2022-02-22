@@ -12,11 +12,11 @@ package main
 
 import (
 	"fmt"
+	"html/template"
 	"net/http"
 	"net/mail"
 	"net/url"
 	"strings"
-	"html/template"
 	"time"
 
 	model "github.com/ITU-DevOps-N/go-minitwit/models"
@@ -285,16 +285,15 @@ func UserTimeline(c *gin.Context) {
 }
 
 func formatAsDate(t time.Time) string {
-    year, month, day := t.Date()
-    return fmt.Sprintf("%02d/%02d/%d %02d:%02d", day, month, year, t.Hour(), t.Minute())
+	year, month, day := t.Date()
+	return fmt.Sprintf("%02d/%02d/%d %02d:%02d", day, month, year, t.Hour(), t.Minute())
 }
 
-func GetUserID (username string) uint {
+func GetUserID(username string) uint {
 	var user model.User
 	DB.Where("username = ?", username).First(&user) // SELECT * FROM USERS WHERE USERNAME = "?"
 	return user.ID
 }
-
 
 func AddMessage(c *gin.Context) {
 	user, _ := c.Cookie("token")
@@ -302,17 +301,18 @@ func AddMessage(c *gin.Context) {
 		c.Redirect(http.StatusTemporaryRedirect, "/")
 	}
 	message := c.Request.FormValue("message")
-	// t := time.Now().Format("02-01-2006")
-	DB.Create(&model.Message{Author: user, Text: message, CreatedAt: "X"})
+	t := time.Now().Format(time.RFC822)
+	time_now, _ := time.Parse(time.RFC822, t)
+	DB.Create(&model.Message{Author: user, Text: message, CreatedAt: time_now})
 	c.Redirect(http.StatusFound, "/user_timeline")
 }
 
 func main() {
 	router := gin.Default()
 	router.SetFuncMap(template.FuncMap{
-        "formatAsDate": formatAsDate,
-		"getUserId": GetUserID,
-    })
+		"formatAsDate": formatAsDate,
+		"getUserId":    GetUserID,
+	})
 	router.LoadHTMLGlob("templates/*.tpl")
 	router.Static("/static", "./static")
 
