@@ -6,8 +6,8 @@
   <h1>MiniTwit</h1>
   <div class=navigation>
   {{ if .user }}
-    <a href="/timeline">my timeline</a> |
-    <a href="/public_timeline">public timeline</a> |
+    <a href="/timeline">My Timeline</a> |
+    <a href="/public_timeline">Public Timeline</a> |
     <a href="/logout">sign out [{{ .user.username }}]</a>
   {{ else }}
     <a href="/public_timeline">public timeline</a> |
@@ -25,7 +25,7 @@
         <dt>E-Mail:
         <dd><input type=text name=email size=30 value="{{ .form.email }}">
         <dt>Password:
-        <dd><input type=password name=password size=30>
+        <dd><input type=password name=password1 size=30>
         <dt>Password <small>(repeat)</small>:
         <dd><input type=password name=password2 size=30>
       </dl>
