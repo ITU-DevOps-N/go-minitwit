@@ -16,6 +16,8 @@ import (
 	"net/mail"
 	"net/url"
 	"strings"
+	"html/template"
+	"time"
 
 	model "github.com/ITU-DevOps-N/go-minitwit/models"
 	"github.com/gin-gonic/gin"
@@ -282,6 +284,18 @@ func UserTimeline(c *gin.Context) {
 	}
 }
 
+func formatAsDate(t time.Time) string {
+    year, month, day := t.Date()
+    return fmt.Sprintf("%02d/%02d/%d %02d:%02d", day, month, year, t.Hour(), t.Minute())
+}
+
+func GetUserID (username string) uint {
+	var user model.User
+	DB.Where("username = ?", username).First(&user) // SELECT * FROM USERS WHERE USERNAME = "?"
+	return user.ID
+}
+
+
 func AddMessage(c *gin.Context) {
 	user, _ := c.Cookie("token")
 	if user == "" {
@@ -295,8 +309,13 @@ func AddMessage(c *gin.Context) {
 
 func main() {
 	router := gin.Default()
+	router.SetFuncMap(template.FuncMap{
+        "formatAsDate": formatAsDate,
+		"getUserId": GetUserID,
+    })
 	router.LoadHTMLGlob("templates/*.tpl")
 	router.Static("/static", "./static")
+
 	SetupDB()
 	router.GET("/", Timeline)
 	router.GET("/public_timeline", Timeline)
