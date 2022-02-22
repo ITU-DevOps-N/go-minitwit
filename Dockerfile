@@ -1,15 +1,21 @@
-# syntax=docker/dockerfile:1
-
 # Alpine is chosen for its small footprint
-FROM golang:1.17-alpine
+FROM golang:alpine3.15
 
-WORKDIR /app
+# Heavy build alternative:
 
-# Download necessary Go modules
-COPY go.mod go.sum ./
-RUN go mod download && go mod verify
+# WORKDIR /app
+# COPY . ./
+# Install Go Dependencies
+# RUN go mod download && go mod verify
+# # Install C compiler gcc
+# RUN apk add build-base
+# Build Go Binary
+# RUN go build -o minitwit main.go
 
-COPY . ./
-RUN go build -o /minitwit
+# Light build alternative:
+# Requires minitwit binary in root directory
+COPY minitwit ./
 
-CMD ["/minitwit"]
+RUN chmod +x minitwit
+
+CMD ["./minitwit"]
