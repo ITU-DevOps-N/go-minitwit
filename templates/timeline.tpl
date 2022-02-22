@@ -42,10 +42,10 @@
   {{ end }}
   <ul class=messages>
   {{ range .messages }}
-    <li><img src="http://www.gravatar.com/avatar/{{ .message_id }}?d=identicon&amp;s=48"><p>
+    <li><img src="http://www.gravatar.com/avatar/{{ .author | getUserId }}?d=identicon&amp;s=48"><p>
       <strong><a href="/user_timeline?username={{.author}}">{{ .author }}</a></strong>
       {{ .text }}
-      <small>&mdash; {{ .created_at }}</small>
+      <small>&mdash; {{ .created_at  | formatAsDate}}</small>
   {{ else }}
     <li><em>There's no message so far.</em>
   {{ end }}
