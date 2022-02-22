@@ -289,8 +289,10 @@ func AddMessage(c *gin.Context) {
 		c.Redirect(http.StatusTemporaryRedirect, "/")
 	}
 	message := c.Request.FormValue("message")
-	t := time.Now().Format("02-01-2006")
-	DB.Create(&model.Message{Author: user, Text: message, CreatedAt: t})
+	t := time.Now().Format(time.RFC822)
+	time_now, _ := time.Parse(time.RFC822, t)
+
+	DB.Create(&model.Message{Author: user, Text: message, CreatedAt: time_now})
 	c.Redirect(http.StatusFound, "/user_timeline")
 }
 
