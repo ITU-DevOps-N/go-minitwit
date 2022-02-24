@@ -3,9 +3,7 @@ package main
 /*
    Go MiniTwit
    ~~~~~~~~
-
    A microblogging application written in Golang with Gin.
-
    :copyright: (c) 2022 by DevØps - Group N.
    :license: BSD, see LICENSE for more details.
 */
@@ -96,7 +94,6 @@ func SignUp(c *gin.Context) {
 
 	if ValidRegistration(c, username, email, password1, password2) {
 		CreateUser(username, email, password1)
-		// c.JSON(http.StatusOK, gin.H{"message": "User created"})
 		location := url.URL{Path: "/login"}
 		c.Redirect(http.StatusFound, location.RequestURI())
 	}
@@ -163,12 +160,6 @@ func LoginPage(c *gin.Context) {
 		"title": "Login",
 	})
 }
-
-// func GetUsers(c *gin.Context) {
-// 	var users []model.User
-// 	DB.Find(&users)
-// 	c.JSON(http.StatusOK, gin.H{"data": users})
-// }
 
 func GetUser(username string) model.User {
 	var user model.User
@@ -329,8 +320,21 @@ func main() {
 	router.GET("/follow", Follow)
 	router.GET("/unfollow", Unfollow)
 	router.POST("/add_message", AddMessage)
-	router.GET("/messages", (func(c *gin.Context) {
-		c.JSON(http.StatusOK, gin.H{"data": GetMessages("")})
+
+	// /msgs/*param means that param is optional
+	// /msgs/:param means that param is required
+	router.GET("/msgs/*usr", (func(c *gin.Context) {
+		user := strings.Trim(c.Param("usr"), "/")
+
+		if user == "" {
+			c.JSON(http.StatusOK, gin.H{"data": GetMessages("")})
+		} else {
+			c.JSON(http.StatusOK, gin.H{"data": GetMessages(user)})
+		}
+	}))
+	router.POST("/msgs/:usr", (func(c *gin.Context) {
+		user := strings.Trim(c.Param("usr"), "/")
+
 	}))
 
 	router.Run()
