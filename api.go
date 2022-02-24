@@ -1,4 +1,4 @@
-package main
+package api
 
 /*
    Go MiniTwit
@@ -320,6 +320,38 @@ func main() {
 	router.GET("/follow", Follow)
 	router.GET("/unfollow", Unfollow)
 	router.POST("/add_message", AddMessage)
+	//API ENDPOINTS ADDED
+
+	// /msgs/*param means that param is optional
+	// /msgs/:param means that param is required
+	router.GET("/msgs/*usr", (func(c *gin.Context) {
+		user := strings.Trim(c.Param("usr"), "/")
+
+		if user == "" {
+			c.JSON(http.StatusOK, gin.H{"data": GetMessages("")})
+		} else {
+			c.JSON(http.StatusOK, gin.H{"data": GetMessages(user)})
+		}
+	}))
+	router.POST("/msgs/:usr", (func(c *gin.Context) {
+		user := strings.Trim(c.Param("usr"), "/")
+		// TODO: continue from the 'messages_per_user(username)' method in API (line 146)
+
+	}))
+
+	LATEST := 0
+	router.GET("/latest", func(c *gin.Context) {
+		c.JSON(http.StatusOK, gin.H{"data": LATEST})
+		gin.RouteInfo.
+
+	})
+
+	router.GET("/msgs", func(c *gin.Context) {
+
+	})
 
 	router.Run()
 }
+
+// Helper method for API
+func notReqFromSimulator()
