@@ -1,0 +1,17 @@
+[Unit]
+Description=A simple blog webserver made with Go and Gin
+ConditionPathExists=/root/go-minitwit
+After=network.target
+[Service]
+Type=simple
+WorkingDirectory=/root/go-minitwit
+ExecStart=/usr/local/bin/go-minitwit-api
+
+Restart=on-failure
+RestartSec=10
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=go-minitwit-api
+
+[Install]
+WantedBy=multi-user.target

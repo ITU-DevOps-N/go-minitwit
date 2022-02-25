@@ -6,8 +6,16 @@ type LoginForm struct {
 }
 
 type RegisterForm struct {
-	Username  string `form:"username" binding:"required"`
-	Email     string `form:"email" binding:"required"`
-	Password1 string `form:"password1" binding:"required"`
-	Password2 string `form:"password2" binding:"required"`
+	Username string `json:"username" form:"username" binding:"required"`
+	Email    string `json:"email" form:"email" binding:"required"`
+	Password string `json:"pwd" form:"password" binding:"required"`
+}
+
+type MessageForm struct {
+	Content string `json:"content" form:"content" binding:"required"`
+}
+
+type FollowForm struct {
+	Follow string `json:"follow" form:"follow"`
+	Unfollow string `json:"unfollow" form:"follow"`
 }
