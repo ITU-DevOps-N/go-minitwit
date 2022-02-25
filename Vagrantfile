@@ -36,7 +36,6 @@ Vagrant.configure("2") do |config|
 
         git clone https://github.com/ITU-DevOps-N/go-minitwit.git
         cd go-minitwit
-        git checkout vagrant1
 
         go mod download
         go mod verify
@@ -59,7 +58,8 @@ Vagrant.configure("2") do |config|
         mv /vagrant/Vagrant/duck* ~/duckdns/
         chmod 700 ~/duckdns/duck.sh
         bash ~/duckdns/duck.sh
-        crontab  ~/duckdns/duck-cronjob
+        sed -i "s|DUCKDNS_TOKEN|$DUCKDNS_TOKEN|g" ~/duckdns/duck.sh
+        echo '*/5 * * * * ~/duckdns/duck.sh >/dev/null 2>&1' | crontab -
       SHELL
     end
   end
