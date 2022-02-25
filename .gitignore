@@ -13,3 +13,6 @@
 
 # Database
 minitwit.db
+
+# Vagrant
+.vagrant
