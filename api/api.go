@@ -138,11 +138,16 @@ func GetMessages(user string) []map[string]interface{} {
 	return results
 }
 
-func GetFollowers(user string) []model.Follow {
-	var followers []model.Follow
+func GetFollowers(user string) []string {
+	var fllws []model.Follow
+	var usr model.User
+	followers := []string{}
 	
-	DB.Table("follows").Where("follower = ?", GetUser(user).ID ).Find(&followers)
-
+	DB.Table("follows").Where("following = ?", GetUser(user).ID ).Find(&fllws)
+	for i := range fllws {
+		DB.Where("ID = ?", fllws[i].Follower).First(&usr)
+		followers = append(followers, usr.Username)
+	}
 	return followers
 }
 
@@ -156,28 +161,15 @@ func GetFollower(follower uint, following uint) bool {
 	}
 }
 
-func Follow(c *gin.Context) {
-	user_to_follow := c.Request.URL.Query().Get("username")
-	user, _ := c.Cookie("token")
-	if user == "" {
-		panic("You must be logged in to follow users")
-	} else {
-		DB.Create(&model.Follow{Follower: GetUser(user).ID, Following: GetUser(user_to_follow).ID})
-	}
-	c.Redirect(http.StatusFound, "/user_timeline?username="+user_to_follow)
+func Follow(user string, to_follow string) *gorm.DB {
+	err := DB.Create(&model.Follow{Follower: GetUser(user).ID, Following: GetUser(to_follow).ID})	
+	return err
 }
 
-func Unfollow(c *gin.Context) {
+func Unfollow(user string, to_unfollow string) *gorm.DB {
 	var follows []model.Follow
-	user_to_follow := c.Request.URL.Query().Get("username")
-	user, _ := c.Cookie("token")
-	if user == "" {
-		panic("You must be logged in to follow users.")
-	} else {
-		DB.Where("follower = ?", GetUser(user).ID).Where("following = ?", GetUser(user_to_follow).ID).Delete(&follows)
-
-	}
-	c.Redirect(http.StatusFound, "/user_timeline?username="+user_to_follow)
+	err := DB.Where("follower = ?", GetUser(user).ID).Where("following = ?", GetUser(to_unfollow).ID).Delete(&follows)
+	return err
 }
 
 func AddMessage(user string, message string) {
@@ -270,18 +262,22 @@ func main() {
 			return
 		}
 		if follow.Follow != "" {
-			fmt.Println(follow.Follow)
-			//follow
+			err := Follow(user, follow.Follow)
+			if err != nil {
+				c.JSON(http.StatusBadRequest, gin.H{"error": err})
+				return
+			}
 		} else if follow.Unfollow != "" {
-			fmt.Println(follow.Unfollow)
+			err := Unfollow(user, follow.Unfollow)
+			if err != nil {
+				c.JSON(http.StatusBadRequest, gin.H{"error": err})
+				return
+			}
 		} else {
-			//handle error
+			c.JSON(400, gin.H{"error_msg": "You must provide a field to follow or unfollow"})
+			return
 		}
 
-		// Follow(user)
 	}))
 	router.Run(":8080")
 }
-
-// Helper method for API
-// func notReqFromSimulator()
