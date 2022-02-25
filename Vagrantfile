@@ -36,18 +36,24 @@ Vagrant.configure("2") do |config|
 
         git clone https://github.com/ITU-DevOps-N/go-minitwit.git
         cd go-minitwit
+        git checkout vagrant1
 
         go mod download
         go mod verify
         go build -o go-minitwit main.go
+        go build -o go-minitwit-api api/api.go
 
-        sudo mv go-minitwit /usr/local/bin/
+        sudo mv go-minitwit go-minitwit-api /usr/local/bin/
         sudo mv /vagrant/Vagrant/go-minitwit.service /lib/systemd/system/go-minitwit.service
+        sudo mv /vagrant/Vagrant/go-minitwit-api.service /lib/systemd/system/go-minitwit-api.service
         
         systemctl daemon-reload
         systemctl enable go-minitwit.service
+        systemctl enable go-minitwit-api.service
         systemctl start go-minitwit.service
-
+        systemctl start go-minitwit-api.service
+        
+        sudo systemctl enable cron
         cd ~
         mkdir duckdns
         mv /vagrant/Vagrant/duck* ~/duckdns/
