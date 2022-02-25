@@ -335,5 +335,5 @@ func main() {
 		c.JSON(http.StatusOK, gin.H{"data": GetMessages("")})
 	}))
 
-	router.Run()
+	router.Run(":80")
 }
