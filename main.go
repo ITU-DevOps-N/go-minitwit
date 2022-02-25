@@ -30,7 +30,8 @@ var DB *gorm.DB
 
 func CreateUser(username string, email string, password string) {
 	salt := Salt()
-	DB.Create(&model.User{Username: username, Email: email, Salt: salt, Password: Hash(salt + password)})
+	usr := strings.ToLower(username)
+	DB.Create(&model.User{Username: usr, Email: email, Salt: salt, Password: Hash(salt + password)})
 }
 
 func Salt() string {
@@ -124,7 +125,8 @@ func ValidUser(username string, password string) bool {
 func Login(c *gin.Context) {
 	c.Request.ParseForm()
 	// session := sessions.Default(c)
-	username := c.Request.PostForm.Get("username")
+
+	username := strings.ToLower(c.Request.PostForm.Get("username"))
 	password := c.Request.PostForm.Get("password")
 
 	if strings.Trim(username, " ") == "" || strings.Trim(password, " ") == "" {
