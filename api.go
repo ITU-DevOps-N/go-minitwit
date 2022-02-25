@@ -339,10 +339,9 @@ func main() {
 
 	}))
 
-	LATEST := 0
 	router.GET("/latest", func(c *gin.Context) {
-		c.JSON(http.StatusOK, gin.H{"data": LATEST})
-		gin.RouteInfo.
+		_, val := c.Get("latest")
+		c.JSON(http.StatusOK, gin.H{"data": val})
 
 	})
 
