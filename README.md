@@ -22,6 +22,7 @@ Create your access token [here](https://cloud.digitalocean.com/account/api/token
 ```shell
 export DIGITAL_OCEAN_TOKEN=''
 export SSH_KEY_NAME=''
+export DUCKDNS_TOKEN=''
 ```
 
 Make sure that your private key for `$SSH_KEY_NAME` is in your `~/.ssh/` directory.
