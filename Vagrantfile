@@ -4,7 +4,7 @@
 Vagrant.configure("2") do |config|
     config.vm.box = 'digital_ocean'
     config.vm.box_url = "https://github.com/devopsgroup-io/vagrant-digitalocean/raw/master/box/digital_ocean.box"
-    config.ssh.private_key_path = '~/.ssh/id_rsa'
+    config.ssh.private_key_path = '~/.ssh/digitalocean'
     config.nfs.functional = false
     config.vm.allowed_synced_folder_types = :rsync
     config.vm.synced_folder "./Vagrant", "/Vagrant", disabled: true
@@ -21,6 +21,7 @@ Vagrant.configure("2") do |config|
       end
 
       server.vm.hostname = "go-minitwit"
+      server.vm.provision "shell", inline: "echo 'export DUCKDNS_TOKEN=" + ENV["DUCKDNS_TOKEN"] + "' >> ~/.profile" 
 
       server.vm.provision "shell", privileged: true, inline: <<-SHELL
         sudo apt-get update
@@ -46,6 +47,13 @@ Vagrant.configure("2") do |config|
         systemctl daemon-reload
         systemctl enable go-minitwit.service
         systemctl start go-minitwit.service
+
+        cd ~
+        mkdir duckdns
+        mv /vagrant/Vagrant/duck* ~/duckdns/
+        chmod 700 ~/duckdns/duck.sh
+        bash ~/duckdns/duck.sh
+        crontab  ~/duckdns/duck-cronjob
       SHELL
     end
   end
