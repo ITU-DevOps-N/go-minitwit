@@ -12,4 +12,7 @@
 *.out
 
 # Database
-minitwit.db
+*.db
+
+# Vagrant
+.vagrant
