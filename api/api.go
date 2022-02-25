@@ -183,6 +183,9 @@ func main() {
 
 	SetupDB()
 	//API ENDPOINTS ADDED
+	router.GET("/", (func(c *gin.Context) {
+		c.JSON(200, "Welcome to Go MiniTwit API!")
+	}))
 	router.POST("/register", SignUp)
 
 	// /msgs/*param means that param is optional
