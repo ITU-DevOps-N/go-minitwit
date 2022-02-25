@@ -40,20 +40,26 @@ Vagrant.configure("2") do |config|
         go mod download
         go mod verify
         go build -o go-minitwit main.go
+        go build -o go-minitwit-api api/api.go
 
-        sudo mv go-minitwit /usr/local/bin/
+        sudo mv go-minitwit go-minitwit-api /usr/local/bin/
         sudo mv /vagrant/Vagrant/go-minitwit.service /lib/systemd/system/go-minitwit.service
+        sudo mv /vagrant/Vagrant/go-minitwit-api.service /lib/systemd/system/go-minitwit-api.service
         
         systemctl daemon-reload
         systemctl enable go-minitwit.service
+        systemctl enable go-minitwit-api.service
         systemctl start go-minitwit.service
-
+        systemctl start go-minitwit-api.service
+        
+        sudo systemctl enable cron
         cd ~
         mkdir duckdns
         mv /vagrant/Vagrant/duck* ~/duckdns/
         chmod 700 ~/duckdns/duck.sh
         bash ~/duckdns/duck.sh
-        crontab  ~/duckdns/duck-cronjob
+        sed -i "s|DUCKDNS_TOKEN|$DUCKDNS_TOKEN|g" ~/duckdns/duck.sh
+        echo '*/5 * * * * ~/duckdns/duck.sh >/dev/null 2>&1' | crontab -
       SHELL
     end
   end
