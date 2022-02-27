@@ -59,7 +59,7 @@ jobs:
       install: skip
       script: |
         ssh -o "StrictHostKeyChecking no" ${MT_USER}@${MT_SERVER} \
-        "source /root/.bash_profile && \
+        "source /root/.profile && \
         cd /root/go-minitwit && \
         docker-compose pull && \
         docker-compose up -d"
