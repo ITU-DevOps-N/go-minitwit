@@ -3,6 +3,12 @@ version: "3.7"
 services:
   web:
     container_name: minitwit
-    build: .
+    image: itudevops/go-minitwit:latest
+    ports:
+        - "80:80"
+
+  api:
+    container_name: minitwit-api
+    image: itudevops/go-minitwit:api
     ports:
         - "8080:8080"
