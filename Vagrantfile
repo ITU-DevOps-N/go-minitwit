@@ -71,6 +71,7 @@ Vagrant.configure("2") do |config|
         git clone https://github.com/ITU-DevOps-N/go-minitwit.git
         cd go-minitwit
 
+        docker-compose up -d
 
         ### Installing DuckDNS
         sudo systemctl enable cron
