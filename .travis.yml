@@ -31,7 +31,6 @@ install:
 
 stages:
   - docker_build
-  - deploy
 
 jobs:
   include:
