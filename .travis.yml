@@ -57,9 +57,9 @@ jobs:
     - stage: deploy
       name: "deploy new version"
       install: skip
-      script: 
-        - ssh -o "StrictHostKeyChecking no" ${MT_USER}@${MT_SERVER}
-        - echo "DEPLOY"
-        - cd /go-minitwit
-        - docker-compose pull
-        - docker-compose up -d
+      script: |
+        ssh -o "StrictHostKeyChecking no" ${MT_USER}@${MT_SERVER} \
+        "source /root/.bash_profile && \
+        cd /root/go-minitwit && \
+        docker-compose pull && \
+        docker-compose up -d"
