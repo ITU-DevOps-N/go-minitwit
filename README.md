@@ -30,4 +30,4 @@ Make sure that your private key for `$SSH_KEY_NAME` is in your `~/.ssh/` directo
 Run vagrant up:
 `vagrant up`
 
-[Access to the application!](go-minitwit.duckdns.org)
+[Access to the application!](http://go-minitwit.duckdns.org)
