@@ -7,7 +7,7 @@ python:
 
 branches:
   only:
-    - cicd
+    - main
 
 services:
   - docker  # required, but travis uses older version of docker :(
@@ -30,20 +30,20 @@ install:
   - docker --version  # document the version travis is using
 
 stages:
+  - build
   - deploy
 
 jobs:
   include:
-    # - stage: docker_build
-    #   name: "build and push docker"
-    #   script:
-    #     - echo "BUILD"
-    #     - docker build -t $DOCKER_USERNAME/$DOCKER_REPO:latest . -f Dockerfile
-    #     - docker build -t $DOCKER_USERNAME/$DOCKER_REPO:api . -f Dockerfile.api
-    #     - echo "PUSH"
-    #     - docker push $DOCKER_USERNAME/$DOCKER_REPO:latest
-    #     - docker push $DOCKER_USERNAME/$DOCKER_REPO:api
-
+    - stage: build
+      name: "build and push docker"
+      script:
+        - echo "BUILD"
+        - docker build -t $DOCKER_USERNAME/$DOCKER_REPO:latest . -f Dockerfile
+        - docker build -t $DOCKER_USERNAME/$DOCKER_REPO:api . -f Dockerfile.api
+        - echo "PUSH"
+        - docker push $DOCKER_USERNAME/$DOCKER_REPO:latest
+        - docker push $DOCKER_USERNAME/$DOCKER_REPO:api
 
     # - stage: test
     #   name: "run pytest"
