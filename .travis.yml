@@ -59,8 +59,7 @@ jobs:
       script: |
         ssh -o "StrictHostKeyChecking no" ${MT_USER}@${MT_SERVER} \
         "source /root/.profile && \
-        export DOCKER_USERNAME=${DOCKER_USERNAME} && \
-        export GO_MINITWIT_REPO=${GO_MINITWIT_REPO} && \
+        echo $DOCKER_PASSWORD | docker login -u itudevops --password-stdin
         cd /root/go-minitwit && \
         docker-compose pull && \
         docker-compose up -d"
