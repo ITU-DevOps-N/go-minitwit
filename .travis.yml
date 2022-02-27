@@ -23,6 +23,8 @@ before_install:
   - eval "$(ssh-agent -s)"
   # Add the key to the authentication agent
   - DISPLAY=":0.0" SSH_ASKPASS="/tmp/askpass" setsid ssh-add /tmp/git_deploy_key </dev/null
+  - echo "LOGIN"
+  - echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin
 
 install:
   - docker --version  # document the version travis is using
@@ -36,8 +38,6 @@ jobs:
     - stage: docker_build
       name: "build and push docker"
       script:
-        - echo "LOGIN"
-        - echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin
         - echo "BUILD"
         - docker build -t $DOCKER_USERNAME/$DOCKER_REPO:latest . -f Dockerfile
         - docker build -t $DOCKER_USERNAME/$DOCKER_REPO:api . -f Dockerfile.api
