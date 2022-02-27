@@ -22,9 +22,11 @@ Vagrant.configure("2") do |config|
 
       server.vm.hostname = "go-minitwit"
       server.vm.provision "shell", inline: "echo 'export DUCKDNS_TOKEN=" + ENV["DUCKDNS_TOKEN"] + "' >> ~/.profile" 
+      server.vm.provision "shell", inline: "echo 'export DOCKER_PASSWORD=" + ENV["DOCKER_PASSWORD"] + "' >> ~/.profile" 
 
       server.vm.provision "shell", privileged: true, inline: <<-SHELL
         sudo apt-get update
+        source ~/.profile
 
         ### Install Go-Minitwit as a linux service (Not recommended)
         ### Install Go
@@ -35,7 +37,7 @@ Vagrant.configure("2") do |config|
         # sudo rm go1.16.7.linux-amd64.tar.gz
 
         # echo 'export PATH=$PATH:/usr/local/go/bin' >> ~/.profile
-        # source ~/.profile
+        
 
         # git clone https://github.com/ITU-DevOps-N/go-minitwit.git
         # cd go-minitwit
