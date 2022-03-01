@@ -4,11 +4,16 @@ services:
   web:
     container_name: minitwit
     image: itudevops/go-minitwit:latest
+    environment:
+      - BUGSNAG_API_KEY=$BUGSNAG_API_KEY
+      - BUGSNAG_APP_TYPE=web
     ports:
         - "80:80"
 
   api:
     container_name: minitwit-api
     image: itudevops/go-minitwit:api
+      - BUGSNAG_API_KEY=$BUGSNAG_API_KEY
+      - BUGSNAG_APP_TYPE=api
     ports:
         - "8080:8080"

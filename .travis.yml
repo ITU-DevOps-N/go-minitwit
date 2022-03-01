@@ -61,5 +61,6 @@ jobs:
         "source /root/.profile && \
         echo $DOCKER_PASSWORD | docker login -u itudevops --password-stdin
         cd /root/go-minitwit && \
+        git pull --all && \
         docker-compose pull && \
         docker-compose up -d"
