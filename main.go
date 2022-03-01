@@ -19,6 +19,8 @@ import (
 
 	model "github.com/ITU-DevOps-N/go-minitwit/models"
 	"github.com/gin-gonic/gin"
+	"github.com/bugsnag/bugsnag-go/v2"
+	"github.com/bugsnag/bugsnag-go-gin"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
@@ -46,6 +48,7 @@ func SetupDB() {
 	db, err := gorm.Open(sqlite.Open("minitwit.db"), &gorm.Config{})
 	if err != nil {
 		fmt.Printf("Error: %s", err.Error())
+		bugsnag.Notify(fmt.Errorf("Failed to connect to database:\t" + err.Error()))
 		panic("Failed to connect to database.")
 	}
 	db.AutoMigrate(&model.User{}, &model.Message{}, &model.Follow{})
@@ -302,6 +305,13 @@ func AddMessage(c *gin.Context) {
 
 func main() {
 	router := gin.Default()
+	router.Use(bugsnaggin.AutoNotify(bugsnag.Configuration{
+        // Your Bugsnag project API key, required
+        // set as environment variable $BUGSNAG_API_KEY
+        // The import paths for the Go packages containing your source files
+        ProjectPackages: []string{"main", "github.com/ITU-DevOps-N/go-minitwit"},
+    }))
+
 	router.SetFuncMap(template.FuncMap{
 		"formatAsDate": formatAsDate,
 		"getUserId":    GetUserID,
