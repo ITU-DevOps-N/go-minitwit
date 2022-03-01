@@ -13,8 +13,8 @@ jobs:
     - name: executing remote ssh commands using password
       uses: appleboy/ssh-action@master
       env:
-        DOCKER_PASSWORD: ${{ DOCKER_PASSWORD }}
-        DOCKER_USERNAME: ${{ DOCKER_USERNAME }}
+        DOCKER_PASSWORD: "${{ DOCKER_PASSWORD }}"
+        DOCKER_USERNAME: "${{ DOCKER_USERNAME }}"
       with:
         host: ${{ secrets.MT_SERVER }}
         username: ${{ secrets.MT_USER }}
