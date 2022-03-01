@@ -18,7 +18,8 @@ jobs:
       with:
         host: ${{ secrets.MT_SERVER }}
         username: ${{ secrets.MT_USER }}
-        key: ${{ secrets.MT_KEY }}
+        passphrase: ${{ secrets.MT_KEY }}
+        envs: DOCKER_PASSWORD,DOCKER_USERNAME
         script: |
           source /root/.profile
           echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin
