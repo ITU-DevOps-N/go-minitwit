@@ -13,6 +13,7 @@ services:
   api:
     container_name: minitwit-api
     image: itudevops/go-minitwit:api
+    environment:
       - BUGSNAG_API_KEY=$BUGSNAG_API_KEY
       - BUGSNAG_APP_TYPE=api
     ports:
