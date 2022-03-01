@@ -1,0 +1,28 @@
+name: Deploy
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  build:
+    name: Deploy
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: executing remote ssh commands using password
+      uses: appleboy/ssh-action@master
+      env:
+        DOCKER_PASSWORD: ${{ DOCKER_PASSWORD }}
+        DOCKER_USERNAME: ${{ DOCKER_USERNAME }}
+      with:
+        host: ${{ secrets.MT_SERVER }}
+        username: ${{ secrets.MT_USER }}
+        key: ${{ secrets.MT_KEY }}
+        script: |
+          source /root/.profile
+          echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin
+          cd /root/go-minitwit
+          git pull --all
+          docker-compose pull
+          docker-compose up -d
