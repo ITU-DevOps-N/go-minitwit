@@ -30,16 +30,16 @@ jobs:
           context: .
           file: ./Dockerfile
           push: true
-          tags: ${{ secrets.DOCKER_HUB_USERNAME }}/gominitwit:latest
-          cache-from: type=registry,ref=${{ secrets.DOCKER_HUB_USERNAME }}/gominitwit:webbuildcache
-          cache-to: type=registry,ref=${{ secrets.DOCKER_HUB_USERNAME }}/gominitwit:webbuildcache,mode=max
+          tags: ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPO }}:latest
+          cache-from: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPO }}:webbuildcache
+          cache-to: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPO }}:webbuildcache,mode=max
       -
         name: Build and push API
         uses: docker/build-push-action@v2
         with:
           context: .
-          file: ./Dockerfile
+          file: ./Dockerfile.api
           push: true
-          tags: ${{ secrets.DOCKER_HUB_USERNAME }}/gominitwit:api
-          cache-from: type=registry,ref=${{ secrets.DOCKER_HUB_USERNAME }}/gominitwit:apibuildcache
-          cache-to: type=registry,ref=${{ secrets.DOCKER_HUB_USERNAME }}/gominitwit:apibuildcache,mode=max
+          tags: ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPO }}:api
+          cache-from: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPO }}:apibuildcache
+          cache-to: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPO }}:apibuildcache,mode=max
