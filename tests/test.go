@@ -2,30 +2,28 @@ package tests
 
 import (
 	"bytes"
-	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"json"
 	"net/http"
-	"net/http/httptest"
-	"os"
 	"testing"
 
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/suite"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
-
-	"github.com/ITU-DevOps-N/go-minitwit"
-
-	"testing"
-
-	model "github.com/ITU-DevOps-N/go-minitwit/models"
-	"github.com/stretchr/testify/assert"
 )
 
 type TestSuite struct {
 	suite.Suite
 	openDB func() gorm.Dialector
+}
+
+func init() {
+	// initialize the router
+	router := gin.Default()
+	// Handlers for testing
+	router.POST("/register", main.SignUp)
+
 }
 
 func TestWholeTestSuite(t *testing.T) {
@@ -43,23 +41,21 @@ func (suite *TestSuite) SetupTestDB() {
 
 //Helper functions
 
-
-
-
 // // This is an example test that will always succeed
 func (suite *TestSuite) TestCreateUser() {
 
+	// Act
+	body, _ := json.Marshal(gin.H{
+		"username": "Yennefer of Vengerberg",
+		"email":    "yennefer@aretuza.wr",
+		"pwd":      "chaosmaster",
+	})
+	req, _ := http.NewRequest(http.MethodPost, "/register", bytes.NewReader(body))
+	fmt.Println(req)
 	// Assert
 	suite.Equal(http.StatusNoContent, "")
 }
 
-
-
-func test_register(suite *TestSuite){
+func test_register(suite *TestSuite) {
 	//
 }
-
-
-
-
-
