@@ -16,4 +16,4 @@ RUN chmod +x go-minitwit
 # It report unhandled panics to Bugsnag
 RUN go install github.com/bugsnag/panic-monitor@latest
 
-CMD ["panic-monitor ./go-minitwit"]
+CMD ["/bin/sh","-c","panic-monitor /app/go-minitwit"]
