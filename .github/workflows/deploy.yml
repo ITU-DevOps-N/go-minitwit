@@ -13,13 +13,15 @@ jobs:
     - name: executing remote ssh commands using password
       uses: appleboy/ssh-action@master
       env:
-        DOCKER_PASSWORD: "${{ DOCKER_PASSWORD }}"
-        DOCKER_USERNAME: "${{ DOCKER_USERNAME }}"
+        #DOCKER_PASSWORD: "${{ DOCKER_PASSWORD }}"
+        #DOCKER_USERNAME: "${{ DOCKER_USERNAME }}"
+        FOO: "BAR"
       with:
         host: ${{ secrets.MT_SERVER }}
         username: ${{ secrets.MT_USER }}
         passphrase: ${{ secrets.MT_KEY }}
-        envs: DOCKER_PASSWORD,DOCKER_USERNAME
+        envs: FOO 
+        #DOCKER_PASSWORD,DOCKER_USERNAME
         script: |
           source /root/.profile
           echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin
