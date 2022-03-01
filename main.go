@@ -42,8 +42,8 @@ func Hash(password string) string {
 	return string(bytes)
 }
 
-func SetupDB() {
-	db, err := gorm.Open(sqlite.Open("minitwit.db"), &gorm.Config{})
+func SetupDB(database string) {
+	db, err := gorm.Open(sqlite.Open(database), &gorm.Config{})
 	if err != nil {
 		fmt.Printf("Error: %s", err.Error())
 		panic("Failed to connect to database.")
@@ -309,7 +309,7 @@ func main() {
 	router.LoadHTMLGlob("templates/*.tpl")
 	router.Static("/static", "./static")
 
-	SetupDB()
+	SetupDB("minitwit.db")
 	router.GET("/", Timeline)
 	router.GET("/public_timeline", Timeline)
 	router.GET("/user_timeline", UserTimeline)
