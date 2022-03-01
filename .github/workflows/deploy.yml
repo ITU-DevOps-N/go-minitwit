@@ -5,15 +5,11 @@ on:
     types: [published]
   workflow_dispatch:
     inputs:
-      logLevel:
-        description: 'Log level'     
-        required: false
-        default: 'warning'
-        type: choice
-        options:
-        - info
-        - warning
-        - debug
+      version:
+        description: 'Deploy version number'
+        required: true
+        default: ${{ github.run_number }}
+
 jobs:
   build:
     name: Deploy
@@ -25,13 +21,15 @@ jobs:
       env:
         PSW: "${{ secrets.DOCKER_PASSWORD }}"
         USR: "${{ secrets.DOCKER_USERNAME }}"
+        VER: "${{ github.event.inputs.version }}"
       with:
         host: ${{ secrets.MT_SERVER }}
         username: ${{ secrets.MT_USER }}
         key: ${{ secrets.MT_KEY }}
-        envs: PSW,USR 
+        envs: PSW,USR,VER
         script: |
           source /root/.profile
+          echo $VER > /root/deploy-version
           echo $PSW | docker login -u $USR --password-stdin
           cd /root/go-minitwit
           git pull --all
