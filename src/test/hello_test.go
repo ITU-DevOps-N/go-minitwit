@@ -1,9 +1,9 @@
-package tests
+package hello_test
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
-	"json"
 	"net/http"
 	"testing"
 
