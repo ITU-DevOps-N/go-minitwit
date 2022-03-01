@@ -12,11 +12,11 @@ import (
 	"fmt"
 	"net/http"
 	"net/mail"
+	"strconv"
 	"strings"
 	"time"
-	"strconv"
 
-	model "github.com/ITU-DevOps-N/go-minitwit/models"
+	model "github.com/ITU-DevOps-N/go-minitwit/src/models"
 	"github.com/gin-gonic/gin"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/driver/sqlite"
@@ -142,8 +142,8 @@ func GetFollowers(user string) []string {
 	var fllws []model.Follow
 	var usr model.User
 	followers := []string{}
-	
-	DB.Table("follows").Where("following = ?", GetUser(user).ID ).Find(&fllws)
+
+	DB.Table("follows").Where("following = ?", GetUser(user).ID).Find(&fllws)
 	for i := range fllws {
 		DB.Where("ID = ?", fllws[i].Follower).First(&usr)
 		followers = append(followers, usr.Username)
@@ -162,7 +162,7 @@ func GetFollower(follower uint, following uint) bool {
 }
 
 func Follow(user string, to_follow string) *gorm.DB {
-	err := DB.Create(&model.Follow{Follower: GetUser(user).ID, Following: GetUser(to_follow).ID})	
+	err := DB.Create(&model.Follow{Follower: GetUser(user).ID, Following: GetUser(to_follow).ID})
 	return err
 }
 
@@ -236,7 +236,7 @@ func main() {
 			c.JSON(400, gin.H{"error_msg": "Latest must be an integer"})
 			return
 		}
-		if latest  == -1{
+		if latest == -1 {
 			c.JSON(200, gin.H{"latest": LATEST})
 		} else {
 			LATEST = latest
