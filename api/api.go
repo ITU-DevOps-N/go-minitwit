@@ -49,7 +49,7 @@ func Hash(password string) string {
 }
 
 func SetupDB() {
-	db, err := gorm.Open(sqlite.Open("minitwit.db"), &gorm.Config{})
+	db, err := gorm.Open(sqlite.Open("db/minitwit.db"), &gorm.Config{})
 	if err != nil {
 		fmt.Printf("Error: %s", err.Error())
 		bugsnag.Notify(fmt.Errorf("Failed to connect to database:\t" + err.Error()))
