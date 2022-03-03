@@ -12,14 +12,14 @@ import (
 	"fmt"
 	"net/http"
 	"net/mail"
+	"strconv"
 	"strings"
 	"time"
-	"strconv"
 
 	model "github.com/ITU-DevOps-N/go-minitwit/models"
-	"github.com/gin-gonic/gin"
+	bugsnaggin "github.com/bugsnag/bugsnag-go-gin"
 	"github.com/bugsnag/bugsnag-go/v2"
-	"github.com/bugsnag/bugsnag-go-gin"
+	"github.com/gin-gonic/gin"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
@@ -82,6 +82,7 @@ func ValidRegistration(c *gin.Context, username string, email string, password s
 }
 
 func SignUp(c *gin.Context) {
+	Latest(c)
 	var json model.RegisterForm
 
 	if err := c.BindJSON(&json); err != nil {
@@ -145,8 +146,8 @@ func GetFollowers(user string) []string {
 	var fllws []model.Follow
 	var usr model.User
 	followers := []string{}
-	
-	DB.Table("follows").Where("following = ?", GetUser(user).ID ).Find(&fllws)
+
+	DB.Table("follows").Where("following = ?", GetUser(user).ID).Find(&fllws)
 	for i := range fllws {
 		DB.Where("ID = ?", fllws[i].Follower).First(&usr)
 		followers = append(followers, usr.Username)
@@ -165,7 +166,7 @@ func GetFollower(follower uint, following uint) bool {
 }
 
 func Follow(user string, to_follow string) *gorm.DB {
-	err := DB.Create(&model.Follow{Follower: GetUser(user).ID, Following: GetUser(to_follow).ID})	
+	err := DB.Create(&model.Follow{Follower: GetUser(user).ID, Following: GetUser(to_follow).ID})
 	return err
 }
 
@@ -181,17 +182,38 @@ func AddMessage(user string, message string) {
 	DB.Create(&model.Message{Author: user, Text: message, CreatedAt: time_now})
 }
 
+func Latest(c *gin.Context) {
+	l := c.Request.URL.Query().Get("latest")
+	if l == "" {
+		if c.FullPath() == "/latest" {
+			c.JSON(200, gin.H{"latest": LATEST})
+		}
+		return
+	}
+	latest, err := strconv.Atoi(l)
+	if err != nil {
+		c.JSON(400, gin.H{"error_msg": "Latest must be an integer"})
+		return
+	}
+	LATEST = latest
+	fmt.Println(c.FullPath())
+	if c.FullPath() == "/latest" {
+		c.JSON(200, gin.H{"latest": LATEST})
+	}
+
+}
 func main() {
 	router := gin.Default()
 	router.Use(bugsnaggin.AutoNotify(bugsnag.Configuration{
-        // Your Bugsnag project API key, required
-        // set as environment variable $BUGSNAG_API_KEY
-        // The import paths for the Go packages containing your source files
-        ProjectPackages: []string{"main", "github.com/ITU-DevOps-N/go-minitwit"},
-    }))
+		// Your Bugsnag project API key, required
+		// set as environment variable $BUGSNAG_API_KEY
+		// The import paths for the Go packages containing your source files
+		ProjectPackages: []string{"main", "github.com/ITU-DevOps-N/go-minitwit"},
+	}))
 	SetupDB()
 	//API ENDPOINTS ADDED
 	router.GET("/", (func(c *gin.Context) {
+		Latest(c)
 		c.JSON(200, "Welcome to Go MiniTwit API!")
 	}))
 	router.POST("/register", SignUp)
@@ -199,6 +221,7 @@ func main() {
 	// /msgs/*param means that param is optional
 	// /msgs/:param means that param is required
 	router.GET("/msgs/*usr", (func(c *gin.Context) {
+		Latest(c)
 		user := strings.Trim(c.Param("usr"), "/")
 
 		if user == "" {
@@ -209,6 +232,7 @@ func main() {
 	}))
 	// messages_per_user (request method == POST) from minitwit_sim_api.py
 	router.POST("/msgs/:usr", (func(c *gin.Context) {
+		Latest(c)
 		user := strings.Trim(c.Param("usr"), "/")
 
 		var message model.MessageForm
@@ -229,30 +253,10 @@ func main() {
 
 	}))
 
-	// def update_latest(request: request):
-	// 	global LATEST /latest?latest=
-	// 	try_latest = request.args.get("latest", type=int, default=-1)
-	// 	LATEST = try_latest if try_latest is not -1 else LATEST
-
-	router.GET("/latest", func(c *gin.Context) {
-		l := c.Request.URL.Query().Get("latest")
-		if l == "" {
-			l = "-1"
-		}
-		latest, err := strconv.Atoi(l)
-		if err != nil {
-			c.JSON(400, gin.H{"error_msg": "Latest must be an integer"})
-			return
-		}
-		if latest  == -1{
-			c.JSON(200, gin.H{"latest": LATEST})
-		} else {
-			LATEST = latest
-			c.JSON(200, gin.H{"latest": LATEST})
-		}
-	})
+	router.GET("/latest", Latest)
 
 	router.GET("/fllws/:usr", (func(c *gin.Context) {
+		Latest(c)
 		user := strings.Trim(c.Param("usr"), "/")
 		if user == "" {
 			c.JSON(400, gin.H{"error_msg": "You must provide a username"})
@@ -262,6 +266,7 @@ func main() {
 	}))
 
 	router.POST("/fllws/:usr", (func(c *gin.Context) {
+		Latest(c)
 		user := strings.Trim(c.Param("usr"), "/")
 		if user == "" {
 			c.JSON(400, gin.H{"error_msg": "You must provide a username"})
