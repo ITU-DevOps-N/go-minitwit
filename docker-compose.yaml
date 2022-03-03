@@ -9,6 +9,8 @@ services:
       - BUGSNAG_APP_TYPE=web
     ports:
         - "80:80"
+    volumes:
+      - db:/app/db:rw
 
   api:
     container_name: minitwit-api
@@ -18,3 +20,7 @@ services:
       - BUGSNAG_APP_TYPE=api
     ports:
         - "8080:8080"
+    volumes:
+      - db:/app/db:rw
+volumes:
+  db: 
