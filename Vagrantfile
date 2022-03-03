@@ -73,7 +73,6 @@ Vagrant.configure("2") do |config|
         git clone https://github.com/ITU-DevOps-N/go-minitwit.git
         cd go-minitwit
         echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin
-        touch db/minitwit.db
         docker-compose up -d
 
         ### Installing DuckDNS
