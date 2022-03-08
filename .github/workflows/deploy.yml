@@ -8,8 +8,7 @@ on:
       version:
         description: 'Deploy version number'
         required: true
-        default: ${{ github.run_number }}
-
+        
 jobs:
   build:
     name: Deploy
