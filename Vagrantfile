@@ -29,7 +29,6 @@ Vagrant.configure("2") do |config|
       server.vm.provision "shell", privileged: true, inline: <<-SHELL
         sudo apt-get update
         source ~/.profile
-
         ### Install Go-Minitwit as a linux service (Not recommended)
         ### Install Go
         # sudo apt install -y build-essential

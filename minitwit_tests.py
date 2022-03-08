@@ -81,7 +81,7 @@ class MiniTwitTestCase(unittest.TestCase):
 
     def test_login_logout(self):
         """Make sure logging in and logging out works"""
-        rv = self.register_and_login('user1', 'default')
+        rv = self.Register('user1', 'default')
         assert b'You were logged in' in rv.data
         rv = self.logout()
         assert b'You were logged out' in rv.data
