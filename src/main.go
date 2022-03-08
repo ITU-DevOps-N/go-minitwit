@@ -28,7 +28,8 @@ import (
 
 func formatAsDate(t time.Time) string {
 	year, month, day := t.Date()
-	return fmt.Sprintf("%02d/%02d/%d %02d:%02d", day, month, year, t.Hour(), t.Minute())
+	hour, minute, second := t.Clock()
+	return fmt.Sprintf("%02d/%02d/%d %02d:%02d:%02d", day, month, year, hour, minute, second)
 }
 
 func GetUserID(username string) uint {
