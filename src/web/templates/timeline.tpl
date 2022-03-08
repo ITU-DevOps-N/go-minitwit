@@ -49,6 +49,11 @@
   {{ else }}
     <li><em>There's no message so far.</em>
   {{ end }}
+  <div>
+    <button>
+      
+    </button>
+  </div>
   </ul>
   </div>
   <div class=footer>
