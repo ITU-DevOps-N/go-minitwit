@@ -16,7 +16,7 @@ import (
 	"strings"
 	"time"
 
-	model "github.com/ITU-DevOps-N/go-minitwit/models"
+	model "github.com/ITU-DevOps-N/go-minitwit/src/models"
 	bugsnaggin "github.com/bugsnag/bugsnag-go-gin"
 	"github.com/bugsnag/bugsnag-go/v2"
 	"github.com/gin-gonic/gin"
