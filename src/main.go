@@ -47,7 +47,7 @@ func main() {
 	router.LoadHTMLGlob("src/web/templates/*.tpl")
 	router.Static("/web/static", "./src/web/static")
 
-	database.SetupDB("minitwit.db")
+	database.SetupDB("db/minitwit.db")
 	router.GET("/", messages.Timeline)
 	router.GET("/public_timeline", ui.Timeline)
 	router.GET("/user_timeline", ui.UserTimeline)
