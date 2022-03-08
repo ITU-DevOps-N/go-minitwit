@@ -44,8 +44,8 @@ func main() {
 		"formatAsDate": formatAsDate,
 		"getUserId":    GetUserID,
 	})
-	router.LoadHTMLGlob("web/templates/*.tpl")
-	router.Static("/web/static", "./web/static")
+	router.LoadHTMLGlob("src/web/templates/*.tpl")
+	router.Static("/web/static", "./src/web/static")
 
 	database.SetupDB("minitwit.db")
 	router.GET("/", messages.Timeline)
@@ -60,5 +60,5 @@ func main() {
 	router.GET("/unfollow", follow.Unfollow)
 	router.POST("/add_message", messages.AddMessage)
 
-	router.Run(":8080")
+	router.Run(":80")
 }
