@@ -12,4 +12,8 @@ RUN go build -o go-minitwit-api api/api.go
 
 RUN chmod +x go-minitwit-api
 
-CMD ["./go-minitwit-api"]
+# Install Bugsnag Panic Monitor
+# It report unhandled panics to Bugsnag
+RUN go install github.com/bugsnag/panic-monitor@latest
+
+CMD ["/bin/sh","-c","panic-monitor /app/go-minitwit-api"]

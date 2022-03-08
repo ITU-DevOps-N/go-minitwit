@@ -1,0 +1,36 @@
+name: Deploy
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Deploy version number'
+        required: true
+        
+jobs:
+  build:
+    name: Deploy
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: executing remote ssh commands using password
+      uses: appleboy/ssh-action@master
+      env:
+        PSW: "${{ secrets.DOCKER_PASSWORD }}"
+        USR: "${{ secrets.DOCKER_USERNAME }}"
+        VER: "${{ github.event.inputs.version }}"
+      with:
+        host: ${{ secrets.MT_SERVER }}
+        username: ${{ secrets.MT_USER }}
+        key: ${{ secrets.MT_KEY }}
+        envs: PSW,USR,VER
+        script: |
+          source /root/.profile
+          echo $VER > /root/deploy-version
+          echo $PSW | docker login -u $USR --password-stdin
+          cd /root/go-minitwit
+          git pull --all
+          docker-compose pull
+          docker-compose up -d
