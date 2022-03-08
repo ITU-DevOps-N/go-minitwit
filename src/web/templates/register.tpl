@@ -1,6 +1,6 @@
 <!doctype html>
 <title> {{.title}} | MiniTwit</title>
-<link rel=stylesheet type=text/css href="/static/style.css">
+<link rel=stylesheet type=text/css href="/web/static/style.css">
 
 <div class=page>
   <h1>MiniTwit</h1>
