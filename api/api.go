@@ -17,6 +17,8 @@ import (
 	"time"
 
 	model "github.com/ITU-DevOps-N/go-minitwit/src/models"
+	bugsnaggin "github.com/bugsnag/bugsnag-go-gin"
+	"github.com/bugsnag/bugsnag-go/v2"
 	"github.com/gin-gonic/gin"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/driver/sqlite"
@@ -47,9 +49,10 @@ func Hash(password string) string {
 }
 
 func SetupDB() {
-	db, err := gorm.Open(sqlite.Open("minitwit.db"), &gorm.Config{})
+	db, err := gorm.Open(sqlite.Open("db/minitwit.db"), &gorm.Config{})
 	if err != nil {
 		fmt.Printf("Error: %s", err.Error())
+		bugsnag.Notify(fmt.Errorf("Failed to connect to database:\t" + err.Error()))
 		panic("Failed to connect to database.")
 	}
 	db.AutoMigrate(&model.User{}, &model.Message{}, &model.Follow{})
@@ -79,6 +82,7 @@ func ValidRegistration(c *gin.Context, username string, email string, password s
 }
 
 func SignUp(c *gin.Context) {
+	Latest(c)
 	var json model.RegisterForm
 
 	if err := c.BindJSON(&json); err != nil {
@@ -178,12 +182,37 @@ func AddMessage(user string, message string) {
 	DB.Create(&model.Message{Author: user, Text: message, CreatedAt: time_now})
 }
 
+func Latest(c *gin.Context) {
+	l := c.Request.URL.Query().Get("latest")
+	if l == "" {
+		if c.FullPath() == "/latest" {
+			c.JSON(200, gin.H{"latest": LATEST})
+		}
+		return
+	}
+	latest, err := strconv.Atoi(l)
+	if err != nil {
+		c.JSON(400, gin.H{"error_msg": "Latest must be an integer"})
+		return
+	}
+	LATEST = latest
+	if c.FullPath() == "/latest" {
+		c.JSON(200, gin.H{"latest": LATEST})
+	}
+
+}
 func main() {
 	router := gin.Default()
-
+	router.Use(bugsnaggin.AutoNotify(bugsnag.Configuration{
+		// Your Bugsnag project API key, required
+		// set as environment variable $BUGSNAG_API_KEY
+		// The import paths for the Go packages containing your source files
+		ProjectPackages: []string{"main", "github.com/ITU-DevOps-N/go-minitwit"},
+	}))
 	SetupDB()
 	//API ENDPOINTS ADDED
 	router.GET("/", (func(c *gin.Context) {
+		Latest(c)
 		c.JSON(200, "Welcome to Go MiniTwit API!")
 	}))
 	router.POST("/register", SignUp)
@@ -191,6 +220,7 @@ func main() {
 	// /msgs/*param means that param is optional
 	// /msgs/:param means that param is required
 	router.GET("/msgs/*usr", (func(c *gin.Context) {
+		Latest(c)
 		user := strings.Trim(c.Param("usr"), "/")
 
 		if user == "" {
@@ -201,6 +231,7 @@ func main() {
 	}))
 	// messages_per_user (request method == POST) from minitwit_sim_api.py
 	router.POST("/msgs/:usr", (func(c *gin.Context) {
+		Latest(c)
 		user := strings.Trim(c.Param("usr"), "/")
 
 		var message model.MessageForm
@@ -221,30 +252,10 @@ func main() {
 
 	}))
 
-	// def update_latest(request: request):
-	// 	global LATEST /latest?latest=
-	// 	try_latest = request.args.get("latest", type=int, default=-1)
-	// 	LATEST = try_latest if try_latest is not -1 else LATEST
-
-	router.GET("/latest", func(c *gin.Context) {
-		l := c.Request.URL.Query().Get("latest")
-		if l == "" {
-			l = "-1"
-		}
-		latest, err := strconv.Atoi(l)
-		if err != nil {
-			c.JSON(400, gin.H{"error_msg": "Latest must be an integer"})
-			return
-		}
-		if latest == -1 {
-			c.JSON(200, gin.H{"latest": LATEST})
-		} else {
-			LATEST = latest
-			c.JSON(200, gin.H{"latest": LATEST})
-		}
-	})
+	router.GET("/latest", Latest)
 
 	router.GET("/fllws/:usr", (func(c *gin.Context) {
+		Latest(c)
 		user := strings.Trim(c.Param("usr"), "/")
 		if user == "" {
 			c.JSON(400, gin.H{"error_msg": "You must provide a username"})
@@ -254,6 +265,7 @@ func main() {
 	}))
 
 	router.POST("/fllws/:usr", (func(c *gin.Context) {
+		Latest(c)
 		user := strings.Trim(c.Param("usr"), "/")
 		if user == "" {
 			c.JSON(400, gin.H{"error_msg": "You must provide a username"})
@@ -276,8 +288,16 @@ func main() {
 				c.JSON(http.StatusBadRequest, gin.H{"error": err})
 				return
 			}
+		} else if len(follow.Latest) > 0 {
+			latest, err := strconv.Atoi(follow.Latest[0])
+			if err != nil {
+				c.JSON(400, gin.H{"error_msg": "Latest must be an integer"})
+				return
+			}
+			LATEST = latest
+			c.JSON(http.StatusOK, gin.H{"data": GetFollowers(user)})
 		} else {
-			c.JSON(400, gin.H{"error_msg": "You must provide a field to follow or unfollow"})
+			c.JSON(400, gin.H{"error_msg": "Only these fields are accepted: follow | unfollow | latest"})
 			return
 		}
 
