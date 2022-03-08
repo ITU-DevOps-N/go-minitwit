@@ -43,27 +43,23 @@ jobs:
           tags: ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPO }}:api
           cache-from: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPO }}:apibuildcache
           cache-to: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPO }}:apibuildcache,mode=max
-  deploy:
-    name: Deploy
-    runs-on: ubuntu-latest
-    
-    steps:
-    - name: executing remote ssh commands using password
-      uses: appleboy/ssh-action@master
-      env:
-        PSW: "${{ secrets.DOCKER_PASSWORD }}"
-        USR: "${{ secrets.DOCKER_USERNAME }}"
-        VER: "${{ github.event.inputs.version }}"
-      with:
-        host: ${{ secrets.MT_SERVER }}
-        username: ${{ secrets.MT_USER }}
-        key: ${{ secrets.MT_KEY }}
-        envs: PSW,USR,VER
-        script: |
-          source /root/.profile
-          echo $VER > /root/deploy-version
-          echo $PSW | docker login -u $USR --password-stdin
-          cd /root/go-minitwit
-          git pull --all
-          docker-compose pull
-          docker-compose up -d
+      - 
+        name: executing remote ssh commands using password
+        uses: appleboy/ssh-action@master
+        env:
+          PSW: "${{ secrets.DOCKER_PASSWORD }}"
+          USR: "${{ secrets.DOCKER_USERNAME }}"
+          VER: "${{ github.event.inputs.version }}"
+        with:
+          host: ${{ secrets.MT_SERVER }}
+          username: ${{ secrets.MT_USER }}
+          key: ${{ secrets.MT_KEY }}
+          envs: PSW,USR,VER
+          script: |
+            source /root/.profile
+            echo $VER > /root/deploy-version
+            echo $PSW | docker login -u $USR --password-stdin
+            cd /root/go-minitwit
+            git pull --all
+            docker-compose pull
+            docker-compose up -d
