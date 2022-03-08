@@ -8,24 +8,30 @@ import (
 
 func Timeline(c *gin.Context) {
 	user, _ := c.Cookie("token")
+
+	// /public_timeline?page=0
+	page := c.DefaultQuery("page", "0")
+
 	if user == "" {
 		c.HTML(http.StatusOK, "timeline.tpl", gin.H{
 			"title": "Timeline",
 			// "endpoint": "public_timeline",
-			"messages": GetMessages(""),
+			"messages": GetMessages("", page),
 		})
 	} else {
 		c.HTML(http.StatusOK, "timeline.tpl", gin.H{
 			"title":         "Timeline",
 			"user":          user,
 			"user_timeline": false,
-			"messages":      GetMessages(""),
+			"messages":      GetMessages("", page),
 		})
 	}
 }
 
 func UserTimeline(c *gin.Context) {
 	user_query := c.Request.URL.Query().Get("username")
+
+	page := c.DefaultQuery("page", "0")
 
 	if user_query != "" {
 		user, err := c.Cookie("token")
@@ -42,14 +48,14 @@ func UserTimeline(c *gin.Context) {
 				"user":          user_query,
 				"followed":      followed,
 				"user_page":     user_page,
-				"messages":      GetMessages(user_query),
+				"messages":      GetMessages(user_query, page),
 			})
 		} else {
 			c.HTML(http.StatusOK, "timeline.tpl", gin.H{
 				"title":         user_query + "'s Timeline",
 				"user_timeline": true,
 				"private":       true,
-				"messages":      GetMessages(user_query),
+				"messages":      GetMessages(user_query, page),
 			})
 		}
 	} else {
@@ -62,7 +68,7 @@ func UserTimeline(c *gin.Context) {
 			"user":      user,
 			"private":   true,
 			"user_page": true,
-			"messages":  GetMessages(user),
+			"messages":  GetMessages(user, page),
 		})
 	}
 }
