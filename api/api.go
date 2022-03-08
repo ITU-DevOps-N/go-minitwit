@@ -196,7 +196,6 @@ func Latest(c *gin.Context) {
 		return
 	}
 	LATEST = latest
-	fmt.Println(c.FullPath())
 	if c.FullPath() == "/latest" {
 		c.JSON(200, gin.H{"latest": LATEST})
 	}
@@ -289,8 +288,16 @@ func main() {
 				c.JSON(http.StatusBadRequest, gin.H{"error": err})
 				return
 			}
+		} else if len(follow.Latest) > 0 {
+			latest, err := strconv.Atoi(follow.Latest[0])
+			if err != nil {
+				c.JSON(400, gin.H{"error_msg": "Latest must be an integer"})
+				return
+			}
+			LATEST = latest
+			c.JSON(http.StatusOK, gin.H{"data": GetFollowers(user)})
 		} else {
-			c.JSON(400, gin.H{"error_msg": "You must provide a field to follow or unfollow"})
+			c.JSON(400, gin.H{"error_msg": "Only these fields are accepted: follow | unfollow | latest"})
 			return
 		}
 
