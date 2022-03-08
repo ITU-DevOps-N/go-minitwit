@@ -17,6 +17,7 @@ import (
 	// used the follow to access all functions.
 	follow "github.com/ITU-DevOps-N/go-minitwit/src/controller"
 	login "github.com/ITU-DevOps-N/go-minitwit/src/controller"
+
 	messages "github.com/ITU-DevOps-N/go-minitwit/src/controller"
 	registration "github.com/ITU-DevOps-N/go-minitwit/src/controller"
 	ui "github.com/ITU-DevOps-N/go-minitwit/src/controller"
