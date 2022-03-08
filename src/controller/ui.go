@@ -48,7 +48,7 @@ func UserTimeline(c *gin.Context) {
 				"user":          user_query,
 				"followed":      followed,
 				"user_page":     user_page,
-				"messages":      GetMessages(user_query, ""),
+				"messages":      GetMessages(user_query, page),
 			})
 		} else {
 			c.HTML(http.StatusOK, "timeline.tpl", gin.H{
