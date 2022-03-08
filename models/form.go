@@ -1,5 +1,7 @@
 package models
 
+import "github.com/lib/pq"
+
 type LoginForm struct {
 	Username string `form:"username" binding:"required"`
 	Password string `form:"password" binding:"required"`
@@ -16,6 +18,7 @@ type MessageForm struct {
 }
 
 type FollowForm struct {
-	Follow string `json:"follow" form:"follow"`
+	Follow 	string `json:"follow" form:"follow"`
 	Unfollow string `json:"unfollow" form:"follow"`
+	Latest	pq.StringArray `json:"latest" form:"latest"`
 }
