@@ -279,13 +279,13 @@ func main() {
 		if follow.Follow != "" {
 			err := Follow(user, follow.Follow)
 			if err != nil {
-				c.JSON(http.StatusBadRequest, gin.H{"error": err})
+				c.JSON(http.StatusBadRequest, gin.H{"error": ""})
 				return
 			}
 		} else if follow.Unfollow != "" {
 			err := Unfollow(user, follow.Unfollow)
 			if err != nil {
-				c.JSON(http.StatusBadRequest, gin.H{"error": err})
+				c.JSON(http.StatusBadRequest, gin.H{"error": ""})
 				return
 			}
 		} else if len(follow.Latest) > 0 {
