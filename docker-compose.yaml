@@ -3,7 +3,8 @@ version: "3.7"
 services:
   web:
     container_name: minitwit
-    image: itudevops/go-minitwit:latest
+    #image: itudevops/go-minitwit:latest
+    image: apal/go-minitwitserver 
     environment:
       - BUGSNAG_API_KEY=$BUGSNAG_API_KEY
       - BUGSNAG_APP_TYPE=web
@@ -17,7 +18,8 @@ services:
 
   api:
     container_name: minitwit-api
-    image: itudevops/go-minitwit:api
+    #image: itudevops/go-minitwit:api
+    image: apal/go-minitwitapi
     environment:
       - BUGSNAG_API_KEY=$BUGSNAG_API_KEY
       - BUGSNAG_APP_TYPE=api
@@ -30,22 +32,17 @@ services:
       - prometheus
 
   prometheus:
-  image: prom/prometheus
-  container_name: prometheus
-  volumes:
-    - ./prometheus.yml:/etc/prometheus/prometheus.yml
-  ports:
-    - "9090:9090"
-  networks:
-    - main
+    image: prom/prometheus
+    container_name: prometheus
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+    ports:
+      - "9090:9090"
 
-
-grafana:
-  image: grafana/grafana:4.5.2
-  ports:
-    - "3000:3000"  
-  networks:
-    - main
+  grafana:
+    image: grafana/grafana:4.5.2
+    ports:
+      - "3000:3000"  
     
 volumes:
   db: 
