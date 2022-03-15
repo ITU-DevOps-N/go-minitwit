@@ -87,6 +87,7 @@ func SignUp(c *gin.Context) {
 
 	if err := c.BindJSON(&json); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		bugsnag.Notify(err, c.Request.Context())
 		return
 	}
 
@@ -99,6 +100,7 @@ func SignUp(c *gin.Context) {
 		if CreateUser(username, email, password) {
 			c.JSON(204, gin.H{})
 		} else {
+			bugsnag.Notify(fmt.Errorf("username or email already exists"), c.Request.Context())
 			c.JSON(400, gin.H{"error": "Username or email already exists."})
 		}
 	}
