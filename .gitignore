@@ -17,3 +17,9 @@ db/
 
 # Vagrant
 .vagrant
+
+# VS Code Remote Containers
+.devcontainer
+
+# MacOS
+.DS_Store
