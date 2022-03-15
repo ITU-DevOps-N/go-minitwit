@@ -24,7 +24,43 @@ import (
 	database "github.com/ITU-DevOps-N/go-minitwit/src/database"
 	model "github.com/ITU-DevOps-N/go-minitwit/src/models"
 	"github.com/gin-gonic/gin"
+	"github.com/penglongli/gin-metrics/ginmetrics"
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
+
+var cpuTemp = prometheus.NewGauge(prometheus.GaugeOpts{
+	Name: "cpu_temperature_celsius",
+	Help: "Current temperature of the CPU.",
+})
+
+func getGinMetrics(router *gin.Engine) {
+	// get global Monitor object
+	m := ginmetrics.GetMonitor()
+
+	// +optional set metric path, default /debug/metrics
+	m.SetMetricPath("/ginmetrics")
+	// +optional set slow time, default 5s
+	m.SetSlowTime(10)
+	// +optional set request duration, default {0.1, 0.3, 1.2, 5, 10}
+	// used to p95, p99
+	m.SetDuration([]float64{0.1, 0.3, 1.2, 5, 10})
+
+	// set middleware for gin
+	m.Use(router)
+}
+
+func init() {
+	prometheus.MustRegister(cpuTemp)
+}
+
+func prometheusHandler() gin.HandlerFunc {
+	h := promhttp.Handler()
+
+	return func(c *gin.Context) {
+		h.ServeHTTP(c.Writer, c.Request)
+	}
+}
 
 func formatAsDate(t time.Time) string {
 	year, month, day := t.Date()
@@ -59,6 +95,9 @@ func main() {
 	router.GET("/follow", follow.Follow)
 	router.GET("/unfollow", follow.Unfollow)
 	router.POST("/add_message", messages.AddMessage)
+
+	router.GET("/metrics", prometheusHandler())
+	getGinMetrics(router)
 
 	router.Run(":80")
 }
