@@ -1,12 +1,9 @@
 version: "3.7"
 
 services:
-  web1:
-    container_name: minitwit1
-    # image: itudevops/go-minitwit:latest
-    build:
-      context: .
-      dockerfile: Dockerfile
+  web:
+    container_name: minitwit
+    image: itudevops/go-minitwit:latest
     restart: always
     environment:
       - WAIT_HOSTS=db:3306
@@ -16,20 +13,16 @@ services:
       - BUGSNAG_API_KEY=$BUGSNAG_API_KEY
       - BUGSNAG_APP_TYPE=web
       - DB_PASS=$DB_PASS
-    command: sh -c "/wait && panic-monitor /app/go-minitwit"
     ports:
-        - "81:81"
+        - "80:80"
     depends_on:
       - db
     links:
       - db
 
-  api1:
-    container_name: minitwit-api1
-    # image: itudevops/go-minitwit:api
-    build:
-      context: .
-      dockerfile: Dockerfile.api
+  api:
+    container_name: minitwit-api
+    image: itudevops/go-minitwit:api
     restart: always
     environment:
       - WAIT_HOSTS=db:3306
@@ -39,9 +32,8 @@ services:
       - BUGSNAG_API_KEY=$BUGSNAG_API_KEY
       - BUGSNAG_APP_TYPE=api
       - DB_PASS=$DB_PASS
-    command: sh -c "/wait && panic-monitor /app/go-minitwit-api"
     ports:
-        - "8081:8081"
+        - "8080:8080"
     depends_on:
       - db
     links:
