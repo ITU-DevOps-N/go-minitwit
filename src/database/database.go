@@ -12,7 +12,6 @@ import (
 var DB *gorm.DB
 
 func SetupDB() {
-	// db, err := gorm.Open(sqlite.Open(database), &gorm.Config{})
 	dsn := "minitwit:" + os.Getenv("DB_PASS") + "@tcp(db:3306)/minitwit?charset=utf8mb4&parseTime=True&loc=Local"
     db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
 	if err != nil {
