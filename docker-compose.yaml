@@ -1,33 +1,51 @@
 version: "3.7"
 
 services:
-  web:
-    container_name: minitwit
+  web1:
+    container_name: minitwit1
     # image: itudevops/go-minitwit:latest
     build:
       context: .
       dockerfile: Dockerfile
     restart: always
     environment:
+      - WAIT_HOSTS=db:3306
+      - WAIT_HOSTS_TIMEOUT=300
+      - WAIT_SLEEP_INTERVAL=30
+      - WAIT_HOST_CONNECT_TIMEOUT=30
       - BUGSNAG_API_KEY=$BUGSNAG_API_KEY
       - BUGSNAG_APP_TYPE=web
       - DB_PASS=$DB_PASS
+    command: sh -c "/wait && panic-monitor /app/go-minitwit"
     ports:
-        - "80:80"
+        - "81:81"
+    depends_on:
+      - db
+    links:
+      - db
 
-  api:
-    container_name: minitwit-api
+  api1:
+    container_name: minitwit-api1
     # image: itudevops/go-minitwit:api
     build:
       context: .
       dockerfile: Dockerfile.api
     restart: always
     environment:
+      - WAIT_HOSTS=db:3306
+      - WAIT_HOSTS_TIMEOUT=300
+      - WAIT_SLEEP_INTERVAL=30
+      - WAIT_HOST_CONNECT_TIMEOUT=30
       - BUGSNAG_API_KEY=$BUGSNAG_API_KEY
       - BUGSNAG_APP_TYPE=api
       - DB_PASS=$DB_PASS
+    command: sh -c "/wait && panic-monitor /app/go-minitwit-api"
     ports:
-        - "8080:8080"
+        - "8081:8081"
+    depends_on:
+      - db
+    links:
+      - db
   
   db:
     image: mysql:5.7
@@ -36,6 +54,8 @@ services:
       MYSQL_DATABASE: 'minitwit'
       MYSQL_USER: 'minitwit'
       MYSQL_PASSWORD: $DB_PASS
+      MYSQL_ROOT_PASSWORD: $DB_PASS
+    ports:
+      - '3306:3306'
     volumes:
-      # - /mnt/go_minitwit/mysql_data:/var/lib/mysql:rw
-      - /Users/gianmarcomurru/University/mysqltest/mysql_data:/var/lib/mysql:rw
+        - /mnt/go_minitwit/mysql_data:/var/lib/mysql:rw
