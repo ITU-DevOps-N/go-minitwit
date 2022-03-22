@@ -31,6 +31,8 @@ jobs:
           echo $VER > /root/deploy-version
           echo $PSW | docker login -u $USR --password-stdin
           cd /root/go-minitwit
+          git stash
           git pull --all
+          sed -ir "s/TAG/$VER/" docker-compose.yaml
           docker-compose pull
           docker-compose up -d
