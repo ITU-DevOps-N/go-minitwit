@@ -4,23 +4,50 @@ services:
   web:
     container_name: minitwit-web
     image: itudevops/go-minitwit:latest
+    restart: always
     environment:
+      - WAIT_HOSTS=db:3306
+      - WAIT_HOSTS_TIMEOUT=300
+      - WAIT_SLEEP_INTERVAL=30
+      - WAIT_HOST_CONNECT_TIMEOUT=30
       - BUGSNAG_API_KEY=$BUGSNAG_API_KEY
       - BUGSNAG_APP_TYPE=web
+      - DB_PASS=$DB_PASS
     ports:
         - "80:80"
-    volumes:
-      - db:/app/db:rw
+    depends_on:
+      - db
+    links:
+      - db
 
   api:
     container_name: minitwit-api
     image: itudevops/go-minitwit:api
+    restart: always
     environment:
+      - WAIT_HOSTS=db:3306
+      - WAIT_HOSTS_TIMEOUT=300
+      - WAIT_SLEEP_INTERVAL=30
+      - WAIT_HOST_CONNECT_TIMEOUT=30
       - BUGSNAG_API_KEY=$BUGSNAG_API_KEY
       - BUGSNAG_APP_TYPE=api
+      - DB_PASS=$DB_PASS
     ports:
         - "8080:8080"
+    depends_on:
+      - db
+    links:
+      - db
+  
+  db:
+    image: mysql:5.7
+    restart: always
+    environment:
+      MYSQL_DATABASE: 'minitwit'
+      MYSQL_USER: 'minitwit'
+      MYSQL_PASSWORD: $DB_PASS
+      MYSQL_ROOT_PASSWORD: $DB_PASS
+    ports:
+      - '3306:3306'
     volumes:
-      - db:/app/db:rw
-volumes:
-  db: 
+        - /mnt/go_minitwit/mysql_data:/var/lib/mysql:rw
