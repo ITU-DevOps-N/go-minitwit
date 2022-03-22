@@ -2,7 +2,7 @@ version: "3.7"
 
 services:
   web:
-    container_name: minitwit
+    container_name: minitwit-web
     image: itudevops/go-minitwit:latest
     restart: always
     environment:
