@@ -25,6 +25,7 @@ Vagrant.configure("2") do |config|
       server.vm.provision "shell", inline: "echo 'export DOCKER_PASSWORD=" + ENV["DOCKER_PASSWORD"] + "' >> ~/.profile" 
       server.vm.provision "shell", inline: "echo 'export DOCKER_USERNAME=" + ENV["DOCKER_USERNAME"] + "' >> ~/.profile" 
       server.vm.provision "shell", inline: "echo 'export BUGSNAG_API_KEY=" + ENV["BUGSNAG_API_KEY"] + "' >> ~/.profile"
+      server.vm.provision "shell", inline: "echo 'export DB_PASS=" + ENV["DB_PASS"] + "' >> ~/.profile"
 
       server.vm.provision "shell", privileged: true, inline: <<-SHELL
         sudo apt-get update
