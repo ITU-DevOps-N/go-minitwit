@@ -3,24 +3,39 @@ version: "3.7"
 services:
   web:
     container_name: minitwit
-    image: itudevops/go-minitwit:latest
+    # image: itudevops/go-minitwit:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: always
     environment:
       - BUGSNAG_API_KEY=$BUGSNAG_API_KEY
       - BUGSNAG_APP_TYPE=web
+      - DB_PASS=$DB_PASS
     ports:
         - "80:80"
-    volumes:
-      - db:/app/db:rw
 
   api:
     container_name: minitwit-api
-    image: itudevops/go-minitwit:api
+    # image: itudevops/go-minitwit:api
+    build:
+      context: .
+      dockerfile: Dockerfile.api
+    restart: always
     environment:
       - BUGSNAG_API_KEY=$BUGSNAG_API_KEY
       - BUGSNAG_APP_TYPE=api
+      - DB_PASS=$DB_PASS
     ports:
         - "8080:8080"
+  
+  db:
+    image: mysql:5.7
+    restart: always
+    environment:
+      MYSQL_DATABASE: 'minitwit'
+      MYSQL_USER: 'minitwit'
+      MYSQL_PASSWORD: $DB_PASS
     volumes:
-      - db:/app/db:rw
-volumes:
-  db: 
+      # - /mnt/go_minitwit/mysql_data:/var/lib/mysql:rw
+      - /Users/gianmarcomurru/University/mysqltest/mysql_data:/var/lib/mysql:rw
