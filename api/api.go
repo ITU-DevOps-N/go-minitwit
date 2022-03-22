@@ -10,6 +10,7 @@ package main
 
 import (
 	"fmt"
+	"os"
 	"net/http"
 	"net/mail"
 	"strconv"
@@ -20,8 +21,12 @@ import (
 	bugsnaggin "github.com/bugsnag/bugsnag-go-gin"
 	"github.com/bugsnag/bugsnag-go/v2"
 	"github.com/gin-gonic/gin"
+	"github.com/penglongli/gin-metrics/ginmetrics"
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
+	"github.com/shirou/gopsutil/cpu"
 	"golang.org/x/crypto/bcrypt"
-	"gorm.io/driver/sqlite"
+	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )
 
@@ -49,7 +54,8 @@ func Hash(password string) string {
 }
 
 func SetupDB() {
-	db, err := gorm.Open(sqlite.Open("db/minitwit.db"), &gorm.Config{})
+	dsn := "minitwit:" + os.Getenv("DB_PASS") + "@tcp(db:3306)/minitwit?charset=utf8mb4&parseTime=True&loc=Local"
+    db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
 	if err != nil {
 		fmt.Printf("Error: %s", err.Error())
 		bugsnag.Notify(fmt.Errorf("Failed to connect to database:\t" + err.Error()))
@@ -201,6 +207,45 @@ func Latest(c *gin.Context) {
 	}
 
 }
+
+var cpuLoad = prometheus.NewGaugeFunc(prometheus.GaugeOpts{
+	Name: "cpu_load_percentage",
+	Help: "Current load of CPU in percentage",
+}, getCpuLoad)
+
+func getCpuLoad() float64 {
+	cpuLoad, _ := cpu.Percent(time.Second, false)
+	return cpuLoad[0]
+}
+
+func getGinMetrics(router *gin.Engine) {
+	// get global Monitor object
+	m := ginmetrics.GetMonitor()
+
+	// +optional set metric path, default /debug/metrics
+	m.SetMetricPath("/ginmetrics")
+	// +optional set slow time, default 5s
+	m.SetSlowTime(10)
+	// +optional set request duration, default {0.1, 0.3, 1.2, 5, 10}
+	// used to p95, p99
+	m.SetDuration([]float64{0.1, 0.3, 1.2, 5, 10})
+
+	// set middleware for gin
+	m.Use(router)
+}
+
+func init() {
+	prometheus.MustRegister(cpuLoad)
+}
+
+func prometheusHandler() gin.HandlerFunc {
+	h := promhttp.Handler()
+
+	return func(c *gin.Context) {
+		h.ServeHTTP(c.Writer, c.Request)
+	}
+}
+
 func main() {
 	router := gin.Default()
 	router.Use(bugsnaggin.AutoNotify(bugsnag.Configuration{
@@ -317,5 +362,9 @@ func main() {
 		}
 
 	}))
+
+	router.GET("/metrics", prometheusHandler())
+	getGinMetrics(router)
+
 	router.Run(":8080")
 }

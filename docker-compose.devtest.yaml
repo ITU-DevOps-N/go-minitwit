@@ -1,0 +1,31 @@
+# Test changes against this docker-compose file with docker-compose -f docker-compose.dev.yaml up --build
+version: "3.7"
+
+services:
+  web:
+    container_name: minitwit-web
+    build:
+      context: .
+      target: web
+    environment:
+      - BUGSNAG_API_KEY=$BUGSNAG_API_KEY
+      - BUGSNAG_APP_TYPE=web
+    ports:
+        - "80:80"
+    volumes:
+      - db:/app/db:rw
+
+  api:
+    container_name: minitwit-api
+    build:
+      context: .
+      target: api
+    environment:
+      - BUGSNAG_API_KEY=$BUGSNAG_API_KEY
+      - BUGSNAG_APP_TYPE=api
+    ports:
+        - "8080:8080"
+    volumes:
+      - db:/app/db:rw
+volumes:
+  db: 
