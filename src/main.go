@@ -15,6 +15,7 @@ import (
 
 	// All of the below imports share the same package i.e. we could have
 	// used the follow to access all functions.
+
 	follow "github.com/ITU-DevOps-N/go-minitwit/src/controller"
 	login "github.com/ITU-DevOps-N/go-minitwit/src/controller"
 
@@ -27,17 +28,22 @@ import (
 	"github.com/penglongli/gin-metrics/ginmetrics"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
+	"github.com/shirou/gopsutil/cpu"
 )
 
-var cpuTemp = prometheus.NewGauge(prometheus.GaugeOpts{
-	Name: "cpu_temperature_celsius",
-	Help: "Current temperature of the CPU.",
-})
+var cpuLoad = prometheus.NewGaugeFunc(prometheus.GaugeOpts{
+	Name: "cpu_load_percentage",
+	Help: "Current load of CPU in percentage",
+}, getCpuLoad)
+
+func getCpuLoad() float64 {
+	cpuLoad, _ := cpu.Percent(time.Second, false)
+	return cpuLoad[0]
+}
 
 func getGinMetrics(router *gin.Engine) {
 	// get global Monitor object
 	m := ginmetrics.GetMonitor()
-
 	// +optional set metric path, default /debug/metrics
 	m.SetMetricPath("/ginmetrics")
 	// +optional set slow time, default 5s
@@ -45,13 +51,12 @@ func getGinMetrics(router *gin.Engine) {
 	// +optional set request duration, default {0.1, 0.3, 1.2, 5, 10}
 	// used to p95, p99
 	m.SetDuration([]float64{0.1, 0.3, 1.2, 5, 10})
-
 	// set middleware for gin
 	m.Use(router)
 }
 
 func init() {
-	prometheus.MustRegister(cpuTemp)
+	prometheus.MustRegister(cpuLoad)
 }
 
 func prometheusHandler() gin.HandlerFunc {
