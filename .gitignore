@@ -14,7 +14,7 @@
 # Database
 *.db
 db/
-
+.DS_Store
 # Vagrant
 .vagrant
 
