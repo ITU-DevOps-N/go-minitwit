@@ -16,4 +16,8 @@ RUN chmod +x go-minitwit
 # It report unhandled panics to Bugsnag
 RUN go install github.com/bugsnag/panic-monitor@latest
 
-CMD ["/bin/sh","-c","panic-monitor /app/go-minitwit"]
+# Tool that wait for MySQL to be ready
+ADD https://github.com/ufoscout/docker-compose-wait/releases/download/2.7.2/wait /wait
+RUN chmod +x /wait
+
+CMD ["/bin/sh","-c","/wait && panic-monitor /app/go-minitwit"]
