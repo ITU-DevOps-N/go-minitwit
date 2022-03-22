@@ -60,5 +60,5 @@ func main() {
 	router.GET("/unfollow", follow.Unfollow)
 	router.POST("/add_message", messages.AddMessage)
 
-	router.Run(":80")
+	router.Run(":81")
 }
