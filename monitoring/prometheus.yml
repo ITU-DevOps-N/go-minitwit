@@ -27,3 +27,15 @@ scrape_configs:
       - targets: ['minitwit:80']
         labels:
           group: 'production'
+
+  
+  - job_name:       'itu-minittwit-api'
+
+    # Override the global default and scrape targets from this job every 5 seconds.
+    scrape_interval: 5s
+
+    static_configs:
+      - targets: ['minitwit-api:8080']
+        labels:
+          group: 'production'
+
