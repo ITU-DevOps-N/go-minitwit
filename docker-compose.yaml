@@ -23,7 +23,7 @@ services:
       - db
   api:
     container_name: minitwit-api
-    image: itudevops/go-minitwit:TAG
+    image: itudevops/go-minitwit-api:TAG
     restart: always
     environment:
       - WAIT_HOSTS=db:3306
