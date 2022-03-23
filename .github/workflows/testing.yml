@@ -1,0 +1,68 @@
+name: Static analysis
+
+on:
+  pull_request:
+    branches: [ develop, main ]
+
+jobs:
+
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Set up Go
+      uses: actions/setup-go@v2
+      with:
+        go-version: 1.17
+
+    - name: Verify dependencies
+      run: go mod download && go mod verify
+
+    - name: Build web
+      run: go build -o go-minitwit src/main.go
+
+    - name: Build api
+      run: go build -o go-minitwit-api api/api.go
+
+    - name: Run go vet on web
+      run: go vet src/main.go
+
+    - name: Run go vet on api
+      run: go vet api/api.go
+ 
+    - name: Install GoKart
+      run: go install github.com/praetorian-inc/gokart@latest
+
+    - name: Run GoKart on web
+      run: gokart scan src/
+
+    - name: Run GoKart on api
+      run: gokart scan api/
+
+    - name: Install staticcheck
+      run: go install honnef.co/go/tools/cmd/staticcheck@latest
+
+    - name: Run staticcheck on web
+      run: staticcheck src/main.go
+
+    - name: Run staticcheck on api
+      run: staticcheck api/api.go
+
+    - name: Install errcheck
+      run: go install github.com/kisielk/errcheck@latest
+
+    - name: Run errcheck on web
+      run: errcheck src/main.go
+
+    - name: Run errcheck on api
+      run: errcheck api/api.go
+
+    - name: Install go tools
+      run: go install golang.org/x/tools/...@latest
+
+    - name: Run gotype on web
+      run: gotype -e src/main.go
+
+    - name: Run gotype on api
+      run: gotype -e api/api.go
