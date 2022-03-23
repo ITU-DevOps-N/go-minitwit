@@ -15,13 +15,7 @@ import (
 
 	// All of the below imports share the same package i.e. we could have
 	// used the follow to access all functions.
-
-	follow "github.com/ITU-DevOps-N/go-minitwit/src/controller"
-	login "github.com/ITU-DevOps-N/go-minitwit/src/controller"
-
-	messages "github.com/ITU-DevOps-N/go-minitwit/src/controller"
-	registration "github.com/ITU-DevOps-N/go-minitwit/src/controller"
-	ui "github.com/ITU-DevOps-N/go-minitwit/src/controller"
+	controller "github.com/ITU-DevOps-N/go-minitwit/src/controller" 
 	database "github.com/ITU-DevOps-N/go-minitwit/src/database"
 	model "github.com/ITU-DevOps-N/go-minitwit/src/models"
 	"github.com/gin-gonic/gin"
@@ -89,20 +83,23 @@ func main() {
 	router.Static("/web/static", "./src/web/static")
 
 	database.SetupDB()
-	router.GET("/", messages.Timeline)
-	router.GET("/public_timeline", ui.Timeline)
-	router.GET("/user_timeline", ui.UserTimeline)
-	router.GET("/register", registration.Register)
-	router.POST("/register", registration.SignUp)
-	router.GET("/login", login.LoginPage)
-	router.POST("/login", login.Login)
-	router.GET("/logout", login.Logout)
-	router.GET("/follow", follow.Follow)
-	router.GET("/unfollow", follow.Unfollow)
-	router.POST("/add_message", messages.AddMessage)
+	router.GET("/", controller.Timeline)
+	router.GET("/public_timeline", controller.Timeline)
+	router.GET("/user_timeline", controller.UserTimeline)
+	router.GET("/register", controller.Register)
+	router.POST("/register", controller.SignUp)
+	router.GET("/login", controller.LoginPage)
+	router.POST("/login", controller.Login)
+	router.GET("/logout", controller.Logout)
+	router.GET("/follow", controller.Follow)
+	router.GET("/unfollow", controller.Unfollow)
+	router.POST("/add_message", controller.AddMessage)
 
 	router.GET("/metrics", prometheusHandler())
 	getGinMetrics(router)
 
-	router.Run(":80")
+	err := router.Run(":80")
+	if err != nil {
+		panic(err)
+	}
 }
