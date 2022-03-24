@@ -57,11 +57,12 @@ func SetupDB() {
 	dsn := "minitwit:" + os.Getenv("DB_PASS") + "@tcp(db:3306)/minitwit?charset=utf8mb4&parseTime=True&loc=Local"
     db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
 	if err != nil {
-		fmt.Printf("Error: %s", err.Error())
-		bugsnag.Notify(fmt.Errorf("Failed to connect to database:\t" + err.Error()))
-		panic("Failed to connect to database.")
+		panic(err)
 	}
-	db.AutoMigrate(&model.User{}, &model.Message{}, &model.Follow{})
+	err1 := db.AutoMigrate(&model.User{}, &model.Message{}, &model.Follow{})
+	if err1 != nil {
+		panic(err1)
+	}
 	DB = db
 }
 
@@ -366,5 +367,8 @@ func main() {
 	router.GET("/metrics", prometheusHandler())
 	getGinMetrics(router)
 
-	router.Run(":8080")
+	err := router.Run(":8080")
+	if err != nil {
+		panic(err)
+	}
 }
