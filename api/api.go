@@ -10,9 +10,9 @@ package main
 
 import (
 	"fmt"
-	"os"
 	"net/http"
 	"net/mail"
+	"os"
 	"strconv"
 	"strings"
 	"time"
@@ -55,7 +55,7 @@ func Hash(password string) string {
 
 func SetupDB() {
 	dsn := "minitwit:" + os.Getenv("DB_PASS") + "@tcp(db:3306)/minitwit?charset=utf8mb4&parseTime=True&loc=Local"
-    db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
+	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
 	if err != nil {
 		panic(err)
 	}
@@ -276,7 +276,7 @@ func main() {
 		if user == "" {
 			data = GetMessages("", no)
 		} else {
-			data = GetMessages(user,no)
+			data = GetMessages(user, no)
 		}
 		if len(data) == 0 {
 			c.JSON(204, gin.H{})
@@ -322,7 +322,7 @@ func main() {
 	router.POST("/fllws/:usr", (func(c *gin.Context) {
 		Latest(c)
 		user := strings.Trim(c.Param("usr"), "/")
-		
+
 		if GetUser(user).ID == 0 {
 			c.JSON(404, gin.H{"error": "user not found"})
 			return

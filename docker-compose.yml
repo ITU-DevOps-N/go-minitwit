@@ -1,0 +1,98 @@
+version: "3.7"
+
+services:
+  go-minitwit-frontend:
+    image: minitwit-frontend
+    container_name: go-minitwit-frontend
+    env_file:
+      - .minitwit-secrets.env
+    build:
+      context: .
+      dockerfile: ./src/Dockerfile
+    ports:
+        - "80:80"
+    networks:
+      - minitwit-network
+    depends_on:
+      - "minitwit-database"
+
+  go-minitwit-api:
+    image: minitwit-api
+    container_name: go-minitwit-api
+    build:
+      context: .
+      dockerfile: ./api/Dockerfile
+    env_file:
+      - .minitwit-secrets.env
+    ports:
+        - "8080:8080"
+    networks:
+      - minitwit-network
+    depends_on:
+      - "minitwit-database"
+
+  minitwit-database:
+    image: mysql:5.7
+    env_file:
+      - .minitwit-secrets.env
+    ports:
+      - "3306:3306"
+    volumes:
+      - /mnt/go_minitwit/mysql_data:/var/lib/mysql:rw
+    networks:
+      - minitwit-network 
+
+  minitwit-prometheus:
+    image: prom/prometheus
+    container_name: minitwit-prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    networks:
+      - minitwit-network
+
+  minitwit-grafana:
+    image: grafana/grafana:4.5.2
+    volumes:
+      - grafana-data:/var/lib/grafana
+    ports:
+      - "3000:3000"
+    networks:
+      - minitwit-network
+
+  minitwit-elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.9.2
+    container_name: minitwit-elasticsearch
+    ports:
+      - "9200:9200"
+    volumes: 
+      - elasticsearch-data:/usr/share/elasticsearc/data
+    environment:
+      - xpack.monitoring.enabled=true
+      - xpack.watcher.enabled=false
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      - discovery.type=single-node
+    networks:
+      - minitwit-network
+
+  minitwit-kibana:
+    image: docker.elastic.co/kibana/kibana:7.9.2
+    container_name: minitwit-kibana
+    ports:
+      - "5601:5601"
+    depends_on:
+      - minitwit-elasticsearch
+    environment:
+      - ELASTICSEARCH_URL=http://elasticsearch:9200
+    networks:
+      - minitwit-network
+
+networks:
+  minitwit-network:
+    driver: bridge
+
+volumes:
+  grafana-data:
+  elasticsearch-data:
+  mysql-data:
