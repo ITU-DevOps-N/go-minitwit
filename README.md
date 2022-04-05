@@ -1,7 +1,17 @@
-# 1. Go Minitwit!
+
+# Go MiniTwit
+
+Store a file in the root directory called `.minitwit-secrets.env`. Make sure this is the exact name and don't push it to any repository
+
+Build the entire application stack:
+```docker compose build```
+
+To run the entire application stack:
+```docker compose up```
+
+## Go Minitwit on DigitalOcean
 [![DigitalOcean Referral Badge](https://web-platforms.sfo2.digitaloceanspaces.com/WWW/Badge%203.svg)](https://www.digitalocean.com/?refcode=7cb197c4e0cb&utm_campaign=Referral_Invite&utm_medium=Referral_Program&utm_source=badge)
 
-## 1.1. Go-Minitwit on Digital Ocean
 We used Vagrant to deploy our application to [DigitalOcean](https://www.digitalocean.com/). Vagrant is a tool that allows us to create and provision virtual machines.
 In our case, Vagrant will create a droplet on DigitalOcean and provision it with the necessary software and configuration.
 Specifically, it will:
@@ -32,6 +42,8 @@ Run vagrant up:
 `vagrant up`
 
 [Access to the application!](http://go-minitwit.duckdns.org)
+
+
 
 ## 1.2. Development
 

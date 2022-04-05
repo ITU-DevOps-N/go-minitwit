@@ -38,7 +38,7 @@ services:
     ports:
       - "3306:3306"
     volumes:
-      - /mnt/go_minitwit/mysql_data:/var/lib/mysql:rw
+      - mysql-data:/var/lib/mysql:rw
     networks:
       - minitwit-network 
 
