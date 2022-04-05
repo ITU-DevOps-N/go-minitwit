@@ -78,7 +78,7 @@ services:
       - "ES_JAVA_OPTS=-Xms1g -Xmx1g"
       - "discovery.type=single-node"
     volumes:
-      - elk_elasticsearch_data:/usr/share/elasticsearch/data
+      - ./config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml:ro
     healthcheck:
       test: ["CMD", "curl", "-s", "-f", "http://localhost:9200/_cat/health"]
       interval: 3s
@@ -86,3 +86,34 @@ services:
       retries: 10
     ports:
       - 9200:9200
+
+  logstash:
+    image: docker.elastic.co/logstash/logstash:7.17.1
+    volumes:
+      - ./config/logstash.conf:/usr/share/logstash/pipeline/logstash.conf:ro
+    depends_on:
+      - elasticsearch
+  
+  filebeat:
+    image: docker.elastic.co/beats/filebeat:7.17.1
+    depends_on:
+     - elasticsearch
+    volumes:
+      - ./config/filebeat.yml:/usr/share/filebeat/filebeat.yml
+      - ./logs/:/logs/ 
+      - /var/lib/docker:/var/lib/docker:ro
+      - /var/run/docker.sock:/var/run/docker.sock 
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:7.17.1
+    environment:
+        elasticsearch.hosts: '["http://elasticsearch:9200"]'
+    depends_on:
+      - elasticsearch
+    healthcheck:
+      test: ["CMD", "curl", "-s", "-f", "http://localhost:5601/api/status"]
+      interval: 3s
+      timeout: 3s
+      retries: 50
+    ports:
+      - 5601:5601
