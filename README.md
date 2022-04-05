@@ -1,7 +1,9 @@
 
 # Go MiniTwit
 
-Store a file in the root directory called `.minitwit-secrets.env`. Make sure this is the exact name and don't push it to any repository
+Store a file with the environment variables in the root directory with the name 
+`.minitwit-secrets.env`. 
+Make sure this is the exact name and do not store it under version control.
 
 Build the entire application stack:
 ```
