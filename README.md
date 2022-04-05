@@ -4,10 +4,16 @@
 Store a file in the root directory called `.minitwit-secrets.env`. Make sure this is the exact name and don't push it to any repository
 
 Build the entire application stack:
-```docker compose build```
+```
+docker compose build
+```
 
 To run the entire application stack:
-```docker compose up```
+```
+docker compose up
+```
+
+For every change in the application, repeat the above process with Docker.
 
 ## Go Minitwit on DigitalOcean
 [![DigitalOcean Referral Badge](https://web-platforms.sfo2.digitaloceanspaces.com/WWW/Badge%203.svg)](https://www.digitalocean.com/?refcode=7cb197c4e0cb&utm_campaign=Referral_Invite&utm_medium=Referral_Program&utm_source=badge)
