@@ -1,9 +1,12 @@
 version: "3.7"
 
+volumes:
+    elk_elasticsearch_data:
+
 services:
   web:
     container_name: minitwit-web
-    image: itudevops/go-minitwit:TAG
+    image: itudevops/go-minitwit:27
     restart: always
     environment:
       - WAIT_HOSTS=db:3306
@@ -23,7 +26,7 @@ services:
       - db
   api:
     container_name: minitwit-api
-    image: itudevops/go-minitwit-api:TAG
+    image: itudevops/go-minitwit-api:27
     restart: always
     environment:
       - WAIT_HOSTS=db:3306
@@ -68,3 +71,18 @@ services:
     image: grafana/grafana:4.5.2
     ports:
       - "3000:3000"  
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.17.1
+    environment:
+      - "ES_JAVA_OPTS=-Xms1g -Xmx1g"
+      - "discovery.type=single-node"
+    volumes:
+      - elk_elasticsearch_data:/usr/share/elasticsearch/data
+    healthcheck:
+      test: ["CMD", "curl", "-s", "-f", "http://localhost:9200/_cat/health"]
+      interval: 3s
+      timeout: 3s
+      retries: 10
+    ports:
+      - 9200:9200
