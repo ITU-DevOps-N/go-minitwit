@@ -14,17 +14,15 @@ import (
 )
 
 func GetMessages(user string, page string) []map[string]interface{} {
-	var messages []model.Message
-
-	database.DB.Find(&messages)
 	var results []map[string]interface{}
 
 	offset, messagesPerPage := LimitMessages(page)
 
+	
 	if user == "" {
-		database.DB.Table("messages").Order("created_at desc").Limit(messagesPerPage).Offset(offset).Find(&results)
+		database.DB.Table("messages").Limit(messagesPerPage).Order("created_at desc").Offset(offset).Find(&results)
 	} else {
-		database.DB.Table("messages").Order("created_at desc").Where("author = ?", user).Limit(messagesPerPage).Offset(offset).Find(&results)
+		database.DB.Table("messages").Where("author = ?", user).Limit(messagesPerPage).Order("created_at desc").Offset(offset).Find(&results)
 	}
 	return results
 }
