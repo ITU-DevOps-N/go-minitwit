@@ -2,7 +2,7 @@ version: "3.7"
 
 services:
   web:
-    container_name: minitwit-web
+    container_name: minitwit_web
     image: itudevops/go-minitwit:TAG
     restart: always
     environment:
@@ -20,7 +20,7 @@ services:
       - prometheus
 
   api:
-    container_name: minitwit-api
+    container_name: minitwit_api
     image: itudevops/go-minitwit-api:TAG
     restart: always
     environment:
