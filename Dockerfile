@@ -19,10 +19,8 @@ RUN go install github.com/bugsnag/panic-monitor@latest
 
 FROM base as web
 COPY --from=base /app/go-minitwit .
-COPY --from=base /wait /wait
 CMD ["/bin/sh","-c","panic-monitor /app/go-minitwit"]
 
 FROM base as api
 COPY --from=base /app/go-minitwit-api .
-COPY --from=base /wait /wait
 CMD ["/bin/sh","-c","panic-monitor /app/go-minitwit-api"]
