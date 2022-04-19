@@ -11,19 +11,16 @@ COPY api/ api/
 # Build the binary and give executable rights
 RUN go build -o go-minitwit src/main.go
 RUN go build -o go-minitwit-api api/api.go
-# Tool that wait for MySQL to be ready
-ADD https://github.com/ufoscout/docker-compose-wait/releases/download/2.7.2/wait /wait
-RUN chmod +x go-minitwit go-minitwit-api /wait
+
+RUN chmod +x go-minitwit go-minitwit-api
 
 # Bugsnag panic
 RUN go install github.com/bugsnag/panic-monitor@latest
 
 FROM base as web
 COPY --from=base /app/go-minitwit .
-COPY --from=base /wait /wait
-CMD ["/bin/sh","-c","/wait && panic-monitor /app/go-minitwit"]
+CMD ["/bin/sh","-c","panic-monitor /app/go-minitwit"]
 
 FROM base as api
 COPY --from=base /app/go-minitwit-api .
-COPY --from=base /wait /wait
-CMD ["/bin/sh","-c","/wait && panic-monitor /app/go-minitwit-api"]
+CMD ["/bin/sh","-c","panic-monitor /app/go-minitwit-api"]
