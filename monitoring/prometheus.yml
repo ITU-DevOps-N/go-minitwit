@@ -24,7 +24,7 @@ scrape_configs:
     scrape_interval: 5s
 
     static_configs:
-      - targets: ['minitwit-web:80']
+      - targets: ['minitwit_web:80']
         labels:
           group: 'production'
 
@@ -35,7 +35,7 @@ scrape_configs:
     scrape_interval: 5s
 
     static_configs:
-      - targets: ['minitwit-api:8080']
+      - targets: ['minitwit_api:8080']
         labels:
           group: 'production'
 
