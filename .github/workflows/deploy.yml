@@ -33,5 +33,6 @@ jobs:
           git stash
           git pull --all
           sed -ir "s/TAG/$VER/" docker-compose.yaml
-          docker-compose pull
+          docker pull itudevops/go-minitwit:$VER
+          docker pull itudevops/go-minitwit-api:$VER
           docker stack deploy --compose-file docker-compose.yaml minitwit
