@@ -37,22 +37,6 @@ services:
       - grafana
       - prometheus
   
-  # db:
-  #   image: mysql:5.7
-  #   restart: always
-  #   environment:
-  #     MYSQL_DATABASE: 'minitwit'
-  #     MYSQL_USER: 'minitwit'
-  #     MYSQL_PASSWORD: $DB_PASS
-  #     MYSQL_ROOT_PASSWORD: $DB_PASS
-  #   ports:
-  #     - '3306:3306'
-  #   volumes:
-  #     - /mnt/go_minitwit/mysql_data:/var/lib/mysql:rw
-  #   depends_on:
-  #     - grafana
-  #     - prometheus
-
   prometheus:
     image: prom/prometheus
     container_name: prometheus
