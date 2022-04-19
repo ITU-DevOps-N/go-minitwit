@@ -18,9 +18,7 @@ services:
     depends_on:
       - grafana
       - prometheus
-      - db
-    links:
-      - db
+
   api:
     container_name: minitwit-api
     image: itudevops/go-minitwit-api:TAG
@@ -35,10 +33,6 @@ services:
       - DB_DATABASE=$DB_DATABASE
     ports:
         - "8080:8080"
-    depends_on:
-      - db
-    links:
-      - db
   
   # db:
   #   image: mysql:5.7
