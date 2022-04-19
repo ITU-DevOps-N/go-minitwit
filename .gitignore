@@ -23,3 +23,6 @@ db/
 
 # MacOS
 .DS_Store
+
+# minitwit secrets
+.minitwit-secrets.env

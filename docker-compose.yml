@@ -1,0 +1,119 @@
+version: "3.7"
+
+# NETWORKS
+networks:
+  elk:
+  main:
+    name: minitwit-network
+
+# VOLUMES
+volumes:
+  grafana-data:
+  elk_elasticsearch_data:
+  mysql-data:
+
+# SERVICES
+services:
+  minitwit-frontend:
+    image: minitwit-frontend
+    container_name: minitwit-frontend
+    env_file:
+      - .minitwit-secrets.env
+    build:
+      context: .
+      dockerfile: ./src/Dockerfile
+    ports:
+        - 80:80
+    networks:
+      - main
+    depends_on:
+      - minitwit-database
+
+  minitwit-api:
+    image: minitwit-api
+    container_name: minitwit-api
+    build:
+      context: .
+      dockerfile: ./api/Dockerfile
+    env_file:
+      - .minitwit-secrets.env
+    ports:
+        - 8080:8080
+    networks:
+      - main
+    depends_on:
+      - minitwit-database
+
+  minitwit-database:
+    image: mysql:5.7
+    container_name: minitwit-database
+    env_file:
+      - .minitwit-secrets.env
+    ports:
+      - 3306:3306
+    volumes:
+      - mysql-data:/var/lib/mysql:rw
+    networks:
+      - main
+
+  minitwit-prometheus:
+    image: prom/prometheus
+    container_name: minitwit-prometheus
+    ports:
+      - 9090:9090
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    networks:
+      - main
+
+  minitwit-grafana:
+    image: grafana/grafana:4.5.2
+    volumes:
+      - grafana-data:/var/lib/grafana
+    ports:
+      - 3000:3000
+    networks:
+      - main
+
+  filebeat:
+    image: docker.elastic.co/beats/filebeat:7.2.0
+    user: root
+    command: filebeat -e -strict.perms=false
+    volumes:
+      - ./filebeat.yml:/usr/share/filebeat/filebeat.yml:ro
+      - /var/lib/docker:/var/lib/docker:ro
+      - /var/run/docker.sock:/var/run/docker.sock
+    depends_on:
+      - elasticsearch
+    networks:
+      - elk
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:7.2.0
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+    ports:
+      - 5601:5601
+    networks:
+      - elk
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.2.0
+    ports:
+      - 9200:9200
+    volumes: 
+      - elk_elasticsearch_data:/usr/share/elasticsearch/data
+    environment:
+        - cluster.name=docker-logs-elk-cluster
+        - bootstrap.memory_lock=true
+        - ES_JAVA_OPTS=-Xms1g -Xmx1g
+        - discovery.type=single-node
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    networks:
+      - elk
+
+
+
