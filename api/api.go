@@ -54,7 +54,8 @@ func Hash(password string) string {
 }
 
 func SetupDB() {
-	dsn := "minitwit:" + os.Getenv("DB_PASS") + "@tcp(db:3306)/minitwit?charset=utf8mb4&parseTime=True&loc=Local"
+	// dsn := "minitwit:" + os.Getenv("DB_PASS") + "@tcp(db:3306)/minitwit?charset=utf8mb4&parseTime=True&loc=Local"
+	dsn := os.Getenv("DB_USER") + ":" + os.Getenv("DB_PASS") + "@tcp(" + os.Getenv("DB_HOST") + ":" + os.Getenv("DB_PORT") + ")/" + os.Getenv("DB_DATABASE") + "?charset=utf8mb4&parseTime=True&loc=Local"
     db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
 	if err != nil {
 		panic(err)
