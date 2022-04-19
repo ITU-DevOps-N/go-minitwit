@@ -55,7 +55,7 @@ jobs:
           host: ${{ secrets.MT_SERVER }}
           username: ${{ secrets.MT_USER }}
           key: ${{ secrets.MT_KEY }}
-          envs: PSW,USR,VER
+          envs: PSW,USR
           script: |
             source /root/.profile
             echo ${{github.run_number}} > /root/deploy-version
@@ -63,5 +63,6 @@ jobs:
             git stash
             git pull --all
             sed -ir "s/TAG/${{github.run_number}}/" docker-compose.yaml
-            docker-compose pull
+            docker pull itudevops/go-minitwit:${{github.run_number}}
+            docker pull itudevops/go-minitwit-api:${{github.run_number}}
             docker stack deploy --compose-file docker-compose.yaml minitwit
