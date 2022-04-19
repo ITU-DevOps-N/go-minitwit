@@ -1,4 +1,4 @@
-FROM golang:1.17.7-alpine3.15 
+FROM golang:1.18.1-alpine3.15 
 WORKDIR /app
 COPY go.mod go.sum ./
 # Install C compiler gcc
