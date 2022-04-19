@@ -62,7 +62,7 @@ jobs:
             cd /root/go-minitwit
             git stash
             git pull --all
-            sed -ir "s/TAG/${{github.run_number}}/" docker-compose.yaml
+            sed -ir "s/TAG/${{github.run_number}}/" docker-compose.prod.yaml
             docker pull itudevops/go-minitwit:${{github.run_number}}
             docker pull itudevops/go-minitwit-api:${{github.run_number}}
             docker stack deploy --compose-file docker-compose.prod.yaml minitwit

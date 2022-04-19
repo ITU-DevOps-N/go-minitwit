@@ -32,7 +32,7 @@ jobs:
           cd /root/go-minitwit
           git stash
           git pull --all
-          sed -ir "s/TAG/$VER/" docker-compose.yaml
+          sed -ir "s/TAG/$VER/" docker-compose.prod.yaml
           docker pull itudevops/go-minitwit:$VER
           docker pull itudevops/go-minitwit-api:$VER
-          docker stack deploy --compose-file docker-compose.yaml minitwit
+          docker stack deploy --compose-file docker-compose.prod.yaml minitwit
