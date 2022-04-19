@@ -15,7 +15,7 @@ services:
       - DB_DATABASE=$DB_DATABASE
     ports:
         - "80:80"
-    depends_on:
+    links:
       - grafana
       - prometheus
 
@@ -33,6 +33,9 @@ services:
       - DB_DATABASE=$DB_DATABASE
     ports:
         - "8080:8080"
+    links:
+      - grafana
+      - prometheus
   
   # db:
   #   image: mysql:5.7
@@ -55,10 +58,16 @@ services:
     container_name: prometheus
     volumes:
       - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+    links:
+      - grafana
+      - minitwit-api
+      - minitwit-web
     ports:
       - "9090:9090"
 
   grafana:
     image: grafana/grafana:4.5.2
+    links:
+      - prometheus
     ports:
       - "3000:3000"  
