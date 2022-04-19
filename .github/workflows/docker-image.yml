@@ -29,37 +29,40 @@ jobs:
         with:
           context: .
           file: ./Dockerfile
+          target: web
           push: true
-          tags: ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPO }}:latest
-          cache-from: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPO }}:webbuildcache
-          cache-to: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPO }}:webbuildcache,mode=max
+          tags: ${{ secrets.DOCKER_USERNAME }}/go-minitwit:${{github.run_number}}
+          cache-from: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/go-minitwit:webbuildcache
+          cache-to: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/go-minitwit:webbuildcache,mode=max
       -
         name: Build and push API
         uses: docker/build-push-action@v2
         with:
           context: .
-          file: ./Dockerfile.api
+          file: ./Dockerfile
+          target: api
           push: true
-          tags: ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPO }}:api
-          cache-from: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPO }}:apibuildcache
-          cache-to: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPO }}:apibuildcache,mode=max
+          tags: ${{ secrets.DOCKER_USERNAME }}/go-minitwit-api:${{github.run_number}}
+          cache-from: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/go-minitwit-api:apibuildcache
+          cache-to: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/go-minitwit-api:apibuildcache,mode=max
       - 
         name: executing remote ssh commands using password
         uses: appleboy/ssh-action@master
         env:
           PSW: "${{ secrets.DOCKER_PASSWORD }}"
           USR: "${{ secrets.DOCKER_USERNAME }}"
-          VER: "${{ github.event.inputs.version }}"
         with:
           host: ${{ secrets.MT_SERVER }}
           username: ${{ secrets.MT_USER }}
           key: ${{ secrets.MT_KEY }}
-          envs: PSW,USR,VER
+          envs: PSW,USR
           script: |
             source /root/.profile
-            echo $VER > /root/deploy-version
-            echo $PSW | docker login -u $USR --password-stdin
+            echo ${{github.run_number}} > /root/deploy-version
             cd /root/go-minitwit
+            git stash
             git pull --all
-            docker-compose pull
-            docker-compose up -d
+            sed -ir "s/TAG/${{github.run_number}}/" docker-compose.prod.yml
+            docker pull itudevops/go-minitwit:${{github.run_number}}
+            docker pull itudevops/go-minitwit-api:${{github.run_number}}
+            docker stack deploy --compose-file docker-compose.prod.yml minitwit

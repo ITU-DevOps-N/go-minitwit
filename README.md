@@ -1,7 +1,25 @@
-# 1. Go Minitwit!
+
+# Go MiniTwit
+
+Store a file with the environment variables in the root directory with the name 
+`.minitwit-secrets.env`. 
+Make sure this is the exact name and do not store it under version control.
+
+Build the entire application stack:
+```
+docker compose build
+```
+
+To run the entire application stack:
+```
+docker compose up
+```
+
+For every change in the application, repeat the above process with Docker.
+
+## Go Minitwit on DigitalOcean
 [![DigitalOcean Referral Badge](https://web-platforms.sfo2.digitaloceanspaces.com/WWW/Badge%203.svg)](https://www.digitalocean.com/?refcode=7cb197c4e0cb&utm_campaign=Referral_Invite&utm_medium=Referral_Program&utm_source=badge)
 
-## 1.1. Go-Minitwit on Digital Ocean
 We used Vagrant to deploy our application to [DigitalOcean](https://www.digitalocean.com/). Vagrant is a tool that allows us to create and provision virtual machines.
 In our case, Vagrant will create a droplet on DigitalOcean and provision it with the necessary software and configuration.
 Specifically, it will:
@@ -33,9 +51,12 @@ Run vagrant up:
 
 [Access to the application!](http://go-minitwit.duckdns.org)
 
+
+
 ## 1.2. Development
 
-You will need to setup environment variables to pull the image from [Docker Hub](https://hub.docker.com/). This is needed to run the application. The environment variables has been shared in the organization; if you do not have these environment variables, ask Emil or Gianmarco for them.
+- Develop locally with `go run src/main.go .` and `go run api/api.go .`
+- Test against production by running `docker compose -f docker-compose.devtest.yaml up --build`. For this, you will need to have the environment variables for Bugsnag.
 
 ### 1.2.1. Environment variables
 
@@ -44,17 +65,3 @@ Once you have the environment variables, set it up like this:
 1. Create a file on your system that contains the environment variables. This SHOULD not be at the project level or anywhere in version control. Example: `~/secrets/go-minitwit`
 2. To expose the variables to the running terminal session, do `source ~/secrets/go-minitwit`
 3. Confirm that the variables are exposed, example `echo $DOCKER_USERNAME`
-
-### 1.2.3. Docker compose (running the application locally)
-
-You will need to login to Docker Hub with the organization credentials. This can be once you have exposed the variables in your terminal session, 
-
-Login to organization on Docker Hub: `docker login --username itudevops -p $DOCKER_PASSWORD`
-
-Start the application locally with `docker-compose up`.
-
-## 1.3 Bugsnag
-
-Login credentials to Bugsnag is available through Emil or Gianmarco.
-
-

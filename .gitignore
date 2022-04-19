@@ -14,6 +14,15 @@
 # Database
 *.db
 db/
-
+.DS_Store
 # Vagrant
 .vagrant
+
+# VS Code Remote Containers
+.devcontainer
+
+# MacOS
+.DS_Store
+
+# minitwit secrets
+.minitwit-secrets.env
