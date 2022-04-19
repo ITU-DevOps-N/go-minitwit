@@ -30,37 +30,8 @@ Vagrant.configure("2") do |config|
       server.vm.provision "shell", privileged: true, inline: <<-SHELL
         sudo apt-get update
         source ~/.profile
-        ### Install Go-Minitwit as a linux service (Not recommended)
-        ### Install Go
-        # sudo apt install -y build-essential
-        # cd ~
-        # curl -OL https://golang.org/dl/go1.16.7.linux-amd64.tar.gz
-        # sudo tar -C /usr/local -xvf go1.16.7.linux-amd64.tar.gz
-        # sudo rm go1.16.7.linux-amd64.tar.gz
-
-        # echo 'export PATH=$PATH:/usr/local/go/bin' >> ~/.profile
-        
-
-        # git clone https://github.com/ITU-DevOps-N/go-minitwit.git
-        # cd go-minitwit
-
-        # go mod download
-        # go mod verify
-        # go build -o go-minitwit main.go
-        # go build -o go-minitwit-api api/api.go
-
-        # sudo mv go-minitwit go-minitwit-api /usr/local/bin/
-        # sudo mv /vagrant/Vagrant/go-minitwit.service /lib/systemd/system/go-minitwit.service
-        # sudo mv /vagrant/Vagrant/go-minitwit-api.service /lib/systemd/system/go-minitwit-api.service
-        
-        # systemctl daemon-reload
-        # systemctl enable go-minitwit.service
-        # systemctl enable go-minitwit-api.service
-        # systemctl start go-minitwit.service
-        # systemctl start go-minitwit-api.service
 
         ### Install Go-Minitwit as Docker Container (Recommended)
-        ### Install Docker
         sudo apt install -y apt-transport-https ca-certificates curl software-properties-common
         curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
         sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu focal stable"
