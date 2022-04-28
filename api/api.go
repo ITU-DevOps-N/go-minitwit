@@ -183,7 +183,11 @@ func Unfollow(user string, to_unfollow string) *gorm.DB {
 	return err
 }
 
+func sanitize(s string) string {
+    return strings.ToValidUTF8(s, "")
+}
 func AddMessage(user string, message string) {
+	message = sanitize(message)
 	t := time.Now().Format(time.RFC822)
 	time_now, _ := time.Parse(time.RFC822, t)
 	DB.Create(&model.Message{Author: user, Text: message, CreatedAt: time_now})
