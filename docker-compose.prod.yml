@@ -6,7 +6,7 @@ networks:
 volumes:
   grafana-data:
   elk_elasticsearch_data:
-  
+
 services:
   web:
     image: itudevops/go-minitwit:TAG
@@ -61,8 +61,8 @@ services:
       - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
     links:
       - grafana
-      - minitwit-api
-      - minitwit-web
+      - api
+      - web
     ports:
       - "9090:9090"
 
