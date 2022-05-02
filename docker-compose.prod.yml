@@ -1,9 +1,21 @@
 version: "3.7"
 
+networks:
+  elk:
+
+volumes:
+  grafana-data:
+  elk_elasticsearch_data:
+  
 services:
   web:
     image: itudevops/go-minitwit:TAG
     container_name: minitwit_web
+    deploy:
+      replicas: 4
+      update_config:
+        delay: 10s
+        order: start-first
     restart: always
     environment:
       - BUGSNAG_API_KEY=$BUGSNAG_API_KEY
@@ -20,8 +32,13 @@ services:
       - prometheus
 
   api:
-    container_name: minitwit_api
     image: itudevops/go-minitwit-api:TAG
+    container_name: minitwit_api
+    deploy:
+      replicas: 4
+      update_config:
+        delay: 10s
+        order: start-first
     restart: always
     environment:
       - BUGSNAG_API_KEY=$BUGSNAG_API_KEY
@@ -55,3 +72,52 @@ services:
       - prometheus
     ports:
       - "3000:3000"  
+
+  filebeat:
+    image: docker.elastic.co/beats/filebeat:7.2.0
+    user: root
+    command: filebeat -e -strict.perms=false
+    volumes:
+      - ./filebeat.yml:/usr/share/filebeat/filebeat.yml:ro
+      - /var/lib/docker:/var/lib/docker:ro
+      - /var/run/docker.sock:/var/run/docker.sock
+    depends_on:
+      - elasticsearch
+    networks:
+      - elk
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:7.2.0
+    environment:
+      elasticsearch.hosts: '["http://elasticsearch:9200"]'
+    ports:
+      - 5601:5601
+    depends_on:
+      - elasticsearch
+    networks:
+      - elk
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.2.0
+    ports:
+      - 9200:9200
+    volumes: 
+      - elk_elasticsearch_data:/usr/share/elasticsearch/data
+    environment:
+        - cluster.name=docker-logs-elk-cluster
+        - xpack.security.enabled=false
+        - bootstrap.memory_lock=true
+        - ES_JAVA_OPTS=-Xms1g -Xmx1g
+        - discovery.type=single-node
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+      nofile:
+        soft: 65536
+        hard: 65536
+    networks:
+      - elk
+
+
+
