@@ -10,7 +10,6 @@ networks:
 volumes:
   grafana-data:
   elk_elasticsearch_data:
-  mysql-data:
 
 # SERVICES
 services:
@@ -26,8 +25,7 @@ services:
         - 80:80
     networks:
       - main
-    depends_on:
-      - minitwit-database
+
 
   minitwit-api:
     image: minitwit-api
@@ -41,20 +39,6 @@ services:
         - 8080:8080
     networks:
       - main
-    depends_on:
-      - minitwit-database
-
-  minitwit-database:
-    image: mysql:5.7
-    container_name: minitwit-database
-    env_file:
-      - .minitwit-secrets.env
-    ports:
-      - 3306:3306
-    volumes:
-      - mysql-data:/var/lib/mysql:rw
-    networks:
-      - main
 
   minitwit-prometheus:
     image: prom/prometheus
@@ -62,7 +46,7 @@ services:
     ports:
       - 9090:9090
     volumes:
-      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
     networks:
       - main
 
@@ -91,9 +75,11 @@ services:
   kibana:
     image: docker.elastic.co/kibana/kibana:7.2.0
     environment:
-      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+      elasticsearch.hosts: '["http://elasticsearch:9200"]'
     ports:
       - 5601:5601
+    depends_on:
+      - elasticsearch
     networks:
       - elk
 
@@ -105,6 +91,7 @@ services:
       - elk_elasticsearch_data:/usr/share/elasticsearch/data
     environment:
         - cluster.name=docker-logs-elk-cluster
+        - xpack.security.enabled=false
         - bootstrap.memory_lock=true
         - ES_JAVA_OPTS=-Xms1g -Xmx1g
         - discovery.type=single-node
@@ -112,6 +99,9 @@ services:
       memlock:
         soft: -1
         hard: -1
+      nofile:
+        soft: 65536
+        hard: 65536
     networks:
       - elk
 
