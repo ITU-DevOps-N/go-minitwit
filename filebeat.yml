@@ -16,29 +16,25 @@ logging.files:
 #----------------------------- Filebeat inputs --------------------------------
 
 filebeat.inputs:
-- type: docker
-  containers.ids:
-  - "*"
+  - type: container
+    enabled: true
+    paths:
+      - '/data/docker/containers/*/*.log'
+    processors:
+      - add_docker_metadata:
+           match_source_index: 3 
+
+
+
 
 #----------------------------- Elasticsearch output --------------------------------
 
 output.elasticsearch:
   hosts: ["elasticsearch:9200"]
   indices:
-    - index: "filebeat-elastic-%{[agent.version]}-%{+yyyy.MM.dd}"
-      when.or:
-        - equals:
-            container.image.name: docker.elastic.co/beats/filebeat:7.2.0
-        - equals:
-            container.image.name: docker.elastic.co/elasticsearch/elasticsearch:7.2.0
-        - equals:
-            container.image.name: docker.elastic.co/kibana/kibana:7.2.0
-    - index: "filebeat-minitwit-%{[agent.version]}-%{+yyyy.MM.dd}"
-      when.or:
-          - equals:
-              container.image.name: minitwit-frontend
-          - equals:
-              container.image.name: minitwit-api
-
+    - index: "filebeat-errors-%{[agent.version]}-%{+yyyy.MM.dd}"
+      when.contains:
+        stream: "stderr"
+  
 logging.json: true
 logging.metrics.enabled: false
