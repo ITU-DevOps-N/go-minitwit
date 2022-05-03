@@ -19,6 +19,9 @@ services:
       update_config:
         delay: 10s
         order: start-first
+      placement:
+        constraints:
+          - "node.role==manager"
     restart: always
     environment:
       - BUGSNAG_API_KEY=$BUGSNAG_API_KEY
@@ -40,7 +43,11 @@ services:
       update_config:
         delay: 10s
         order: start-first
+      placement:
+        constraints:
+          - "node.role==manager"
     restart: always
+    
     environment:
       - BUGSNAG_API_KEY=$BUGSNAG_API_KEY
       - BUGSNAG_APP_TYPE=api
@@ -58,6 +65,10 @@ services:
     image: prom/prometheus
     volumes:
       - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+    deploy:
+      placement:
+        constraints:
+          - "node.role==manager"
     networks:
       - main
     ports:
@@ -67,6 +78,10 @@ services:
     image: grafana/grafana:4.5.2
     volumes:
       - grafana-data:/var/lib/grafana
+    deploy:
+      placement:
+        constraints:
+          - "node.role==manager"
     ports:
       - "3000:3000"
     networks:
@@ -93,6 +108,10 @@ services:
       elasticsearch.hosts: '["http://elasticsearch:9200"]'
     volumes:
       - elk_kibana_data:/usr/share/kibana/data
+    deploy:
+      placement:
+        constraints:
+          - "node.role==worker"
     ports:
       - 5601:5601
     depends_on:
@@ -112,6 +131,10 @@ services:
         - bootstrap.memory_lock=true
         - ES_JAVA_OPTS=-Xms1g -Xmx1g
         - discovery.type=single-node
+    deploy:
+      placement:
+        constraints:
+          - "node.role==worker"
     ulimits:
       memlock:
         soft: -1
