@@ -110,7 +110,7 @@ services:
         - cluster.name=docker-logs-elk-cluster
         - xpack.security.enabled=false
         - bootstrap.memory_lock=true
-        - ES_JAVA_OPTS=-Xms108m -Xmx108m
+        - ES_JAVA_OPTS=-Xms512m -Xmx512m
         - discovery.type=single-node
     ulimits:
       memlock:
