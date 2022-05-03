@@ -36,7 +36,7 @@ services:
   api:
     image: itudevops/go-minitwit-api:TAG
     deploy:
-      replicas: 1
+      replicas: 2
       update_config:
         delay: 10s
         order: start-first

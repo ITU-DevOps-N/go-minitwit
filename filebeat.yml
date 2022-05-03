@@ -32,9 +32,15 @@ filebeat.inputs:
 output.elasticsearch:
   hosts: ["elasticsearch:9200"]
   indices:
-    - index: "filebeat-errors-%{[agent.version]}-%{+yyyy.MM.dd}"
-      when.contains:
-        stream: "stderr"
-  
+    - index: "filebeat-minitwit-%{[agent.version]}-%{+yyyy.MM.dd}"
+      when.or:
+        - contains:
+            stream: "stderr"
+        - contains:
+            message : "ERR"
+        - contains:
+            message : "WARN"
+        - contains:
+            message : "GIN"  
 logging.json: true
 logging.metrics.enabled: false
