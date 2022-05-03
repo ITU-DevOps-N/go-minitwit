@@ -184,7 +184,7 @@ func Unfollow(user string, to_unfollow string) *gorm.DB {
 }
 
 func sanitize(s string) string {
-    return strings.ToValidUTF8(s, "")
+	return strings.ToValidUTF8(s, "")
 }
 func AddMessage(user string, message string) {
 	message = sanitize(message)
@@ -371,8 +371,7 @@ func main() {
 	router.GET("/metrics", prometheusHandler())
 	getGinMetrics(router)
 
-	err := router.Run(":8080")
-	if err != nil {
+	if err := router.Run("0.0.0.0:8081"); err != nil {
 		panic(err)
 	}
 }

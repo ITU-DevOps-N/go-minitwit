@@ -1,33 +1,26 @@
 version: "3.7"
 
-# NETWORKS
 networks:
   elk:
   main:
     name: minitwit-network
 
-# VOLUMES
 volumes:
   grafana-data:
   elk_elasticsearch_data:
 
-# SERVICES
 services:
   minitwit-frontend:
-    #image: itudevops/go-minitwit:32
     container_name: minitwit-frontend
     env_file:
       - .minitwit-secrets.env
     build:
       context: .
       target: web
-    # ports:
-    #     - 80:80
     networks:
       - main
 
   minitwit-api:
-    #image: itudevops/go-minitwit-api:32
     container_name: minitwit-api
     build:
       context: .
@@ -105,16 +98,12 @@ services:
       - elk
 
   nginx:
-      container_name: my_nginx
-      image: nginx
-      ports:
-        - 9200:9200
-        - 5601:5601
-        - 8881:8881
-        - 8882:8882
-      depends_on: 
-        - "minitwit-frontend"
-        - "minitwit-api"
-        - "kibana"
-        - "elasticsearch"
-        - "minitwit-grafana"
+    build: "./nginx"
+    container_name: nginx-container
+    ports:
+    - "80:80"
+    depends_on:
+      - minitwit-frontend
+      - minitwit-api
+    networks: 
+      - main

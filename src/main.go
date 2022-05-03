@@ -15,7 +15,7 @@ import (
 
 	// All of the below imports share the same package i.e. we could have
 	// used the follow to access all functions.
-	controller "github.com/ITU-DevOps-N/go-minitwit/src/controller" 
+	controller "github.com/ITU-DevOps-N/go-minitwit/src/controller"
 	database "github.com/ITU-DevOps-N/go-minitwit/src/database"
 	model "github.com/ITU-DevOps-N/go-minitwit/src/models"
 	"github.com/gin-gonic/gin"
@@ -79,6 +79,7 @@ func main() {
 		"formatAsDate": formatAsDate,
 		"getUserId":    GetUserID,
 	})
+
 	router.LoadHTMLGlob("src/web/templates/*.tpl")
 	router.Static("/web/static", "./src/web/static")
 
@@ -98,8 +99,7 @@ func main() {
 	router.GET("/metrics", prometheusHandler())
 	getGinMetrics(router)
 
-	err := router.Run(":80")
-	if err != nil {
+	if err := router.Run("0.0.0.0:8080"); err != nil {
 		panic(err)
 	}
 }
