@@ -12,11 +12,11 @@ volumes:
 services:
   minitwit-frontend:
     container_name: minitwit-frontend
-    env_file:
-      - .minitwit-secrets.env
     build:
       context: .
       target: web
+    env_file:
+      - .minitwit-secrets.env
     networks:
       - main
 
@@ -27,8 +27,6 @@ services:
       target: api
     env_file:
       - .minitwit-secrets.env
-    # ports:
-    #     - 8080:8080
     networks:
       - main
 

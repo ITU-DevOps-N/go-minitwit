@@ -19,8 +19,10 @@ RUN go install github.com/bugsnag/panic-monitor@latest
 
 FROM base as web
 COPY --from=base /app/go-minitwit .
+EXPOSE 8080
 CMD ["/bin/sh","-c","panic-monitor /app/go-minitwit"]
 
 FROM base as api
 COPY --from=base /app/go-minitwit-api .
+EXPOSE 8081
 CMD ["/bin/sh","-c","panic-monitor /app/go-minitwit-api"]
