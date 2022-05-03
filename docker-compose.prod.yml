@@ -9,16 +9,19 @@ networks:
 volumes:
   grafana-data:
   elk_elasticsearch_data:
+  elk_kibana_data:
 
 services:
   web:
     image: itudevops/go-minitwit:TAG
-    container_name: minitwit_web
     deploy:
-      replicas: 4
+      replicas: 1
       update_config:
         delay: 10s
         order: start-first
+      placement:
+        constraints:
+          - "node.role==manager"
     restart: always
     environment:
       - BUGSNAG_API_KEY=$BUGSNAG_API_KEY
@@ -35,13 +38,16 @@ services:
 
   api:
     image: itudevops/go-minitwit-api:TAG
-    container_name: minitwit_api
     deploy:
-      replicas: 4
+      replicas: 2
       update_config:
         delay: 10s
         order: start-first
+      placement:
+        constraints:
+          - "node.role==manager"
     restart: always
+    
     environment:
       - BUGSNAG_API_KEY=$BUGSNAG_API_KEY
       - BUGSNAG_APP_TYPE=api
@@ -57,9 +63,12 @@ services:
   
   prometheus:
     image: prom/prometheus
-    container_name: prometheus
     volumes:
       - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+    deploy:
+      placement:
+        constraints:
+          - "node.role==manager"
     networks:
       - main
     ports:
@@ -67,8 +76,12 @@ services:
 
   grafana:
     image: grafana/grafana:4.5.2
-    links:
-      - prometheus
+    volumes:
+      - grafana-data:/var/lib/grafana
+    deploy:
+      placement:
+        constraints:
+          - "node.role==manager"
     ports:
       - "3000:3000"
     networks:
@@ -78,6 +91,8 @@ services:
     image: docker.elastic.co/beats/filebeat:7.2.0
     user: root
     command: filebeat -e -strict.perms=false
+    deploy:
+      mode: global
     volumes:
       - ./filebeat.yml:/usr/share/filebeat/filebeat.yml:ro
       - /var/lib/docker:/var/lib/docker:ro
@@ -91,6 +106,12 @@ services:
     image: docker.elastic.co/kibana/kibana:7.2.0
     environment:
       elasticsearch.hosts: '["http://elasticsearch:9200"]'
+    volumes:
+      - elk_kibana_data:/usr/share/kibana/data
+    deploy:
+      placement:
+        constraints:
+          - "node.role==worker"
     ports:
       - 5601:5601
     depends_on:
@@ -110,6 +131,10 @@ services:
         - bootstrap.memory_lock=true
         - ES_JAVA_OPTS=-Xms1g -Xmx1g
         - discovery.type=single-node
+    deploy:
+      placement:
+        constraints:
+          - "node.role==worker"
     ulimits:
       memlock:
         soft: -1
@@ -119,6 +144,3 @@ services:
         hard: 65536
     networks:
       - elk
-
-
-
