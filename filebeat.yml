@@ -15,14 +15,19 @@ logging.files:
 
 #----------------------------- Filebeat inputs --------------------------------
 
+# filebeat.inputs:
+#   - type: container
+#     enabled: true
+#     paths:
+#       - '/data/docker/containers/*/*.log'
+#     processors:
+#       - add_docker_metadata:
+#            match_source_index: 3 
 filebeat.inputs:
-  - type: container
-    enabled: true
-    paths:
-      - '/data/docker/containers/*/*.log'
-    processors:
-      - add_docker_metadata:
-           match_source_index: 3 
+- type: docker
+  containers.ids:
+  - "*"
+
 
 
 
