@@ -2,6 +2,7 @@ version: "3.7"
 
 networks:
   elk:
+  proxy:
   main:
     name: minitwit-network
 
@@ -19,6 +20,7 @@ services:
       - .minitwit-secrets.env
     networks:
       - main
+      - proxy
 
   minitwit-api:
     container_name: minitwit-api
@@ -29,25 +31,33 @@ services:
       - .minitwit-secrets.env
     networks:
       - main
+      - proxy
 
   minitwit-prometheus:
     image: prom/prometheus
     container_name: minitwit-prometheus
-    ports:
-      - 9090:9090
+    # ports:
+    #   - 9090:9090
+    # expose:
+    #   - 9090
     volumes:
       - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
     networks:
       - main
+      - proxy
 
   minitwit-grafana:
     image: grafana/grafana:4.5.2
+    container_name: minitwit-grafana
     volumes:
       - grafana-data:/var/lib/grafana
+    expose:
+      - 3000
     # ports:
     #   - 3000:3000
     networks:
       - main
+      - proxy
 
   filebeat:
     image: docker.elastic.co/beats/filebeat:7.2.0
@@ -61,22 +71,30 @@ services:
       - elasticsearch
     networks:
       - elk
+      - proxy
 
   kibana:
     image: docker.elastic.co/kibana/kibana:7.2.0
+    container_name: kibana
     environment:
       elasticsearch.hosts: '["http://elasticsearch:9200"]'
-    # ports:
-    #   - 5601:5601
+    ports:
+      - 5601:5601
+    # expose:
+    #   - 5601
     depends_on:
       - elasticsearch
     networks:
       - elk
+      - proxy
 
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:7.2.0
+    container_name: elasticsearch
     # ports:
     #   - 9200:9200
+    # expose:
+    #   - 9200
     volumes: 
       - elk_elasticsearch_data:/usr/share/elasticsearch/data
     environment:
@@ -94,14 +112,15 @@ services:
         hard: 65536
     networks:
       - elk
+      - proxy
 
   nginx:
     build: "./nginx"
     container_name: nginx-container
     ports:
-    - "80:80"
+    - 80:80
     depends_on:
       - minitwit-frontend
       - minitwit-api
     networks: 
-      - main
+      - proxy
