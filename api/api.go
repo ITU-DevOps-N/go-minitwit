@@ -371,7 +371,7 @@ func main() {
 	router.GET("/metrics", prometheusHandler())
 	getGinMetrics(router)
 
-	if err := router.Run("0.0.0.0:8081"); err != nil {
+	if err := router.Run(":8081"); err != nil {
 		panic(err)
 	}
 }

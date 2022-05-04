@@ -1,6 +1,7 @@
 version: "3.7"
 
 networks:
+  monitoring-logging:
   elk:
 
 volumes:
@@ -14,8 +15,10 @@ services:
       target: web
     env_file:
       - .minitwit-secrets.env
-    ports:
-      - 8080:8080
+    networks:
+      - monitoring-logging
+    # ports:
+    #   - 8080:8080
 
   api:
     build:
@@ -23,22 +26,28 @@ services:
       target: api
     env_file:
       - .minitwit-secrets.env
-    ports:
-      - 8081:8081
+    networks:
+      - monitoring-logging
+    # ports:
+    #   - 8081:8081
 
   prometheus:
     image: prom/prometheus
     volumes:
       - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
-    ports:
-    - 9090:9090
+    networks:
+      - monitoring-logging
+    # ports:
+    # - 9090:9090
 
   grafana:
     image: grafana/grafana:4.5.2
     volumes:
       - grafana-data:/var/lib/grafana
-    ports:
-      - 3000:3000
+    networks:
+      - monitoring-logging
+    # ports:
+    #   - 3000:3000
 
   filebeat:
     image: docker.elastic.co/beats/filebeat:7.2.0
@@ -61,8 +70,8 @@ services:
       - elasticsearch
     networks:
       - elk
-    ports:
-      - 5601:5601
+    # ports:
+    #   - 5601:5601
 
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:7.2.0
@@ -83,5 +92,19 @@ services:
         hard: 65536
     networks:
       - elk
+    # ports:
+    #   - 9200:9200
+  
+  reverse-proxy:
+    # The official v2 Traefik docker image
+    image: traefik:v2.6
+    # Enables the web UI and tells Traefik to listen to docker
+    command: --api.insecure=true --providers.docker
     ports:
-      - 9200:9200
+      # The HTTP port
+      - "80:80"
+      # The Web UI (enabled by --api.insecure=true)
+      - "8080:8080"
+    volumes:
+      # So that Traefik can listen to the Docker events
+      - /var/run/docker.sock:/var/run/docker.sock
