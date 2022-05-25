@@ -24,6 +24,7 @@ services:
           - "node.role==manager"
     restart: always
     environment:
+      - GIN_MODE=release
       - BUGSNAG_API_KEY=$BUGSNAG_API_KEY
       - BUGSNAG_APP_TYPE=web
       - DB_PASS=$DB_PASS
@@ -41,14 +42,14 @@ services:
     deploy:
       replicas: 2
       update_config:
-        delay: 10s
+        delay: 10sdocker swarm join-token worker -q
         order: start-first
       placement:
         constraints:
           - "node.role==manager"
     restart: always
-    
     environment:
+      - GIN_MODE=release
       - BUGSNAG_API_KEY=$BUGSNAG_API_KEY
       - BUGSNAG_APP_TYPE=api
       - DB_PASS=$DB_PASS
@@ -90,6 +91,8 @@ services:
   filebeat:
     image: docker.elastic.co/beats/filebeat:7.2.0
     user: root
+    logging:
+      driver: none
     command: filebeat -e -strict.perms=false
     deploy:
       mode: global
