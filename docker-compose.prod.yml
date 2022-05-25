@@ -24,6 +24,7 @@ services:
           - "node.role==manager"
     restart: always
     environment:
+      - VERSION=TAG
       - GIN_MODE=release
       - BUGSNAG_API_KEY=$BUGSNAG_API_KEY
       - BUGSNAG_APP_TYPE=web
@@ -49,6 +50,7 @@ services:
           - "node.role==manager"
     restart: always
     environment:
+      - VERSION=TAG
       - GIN_MODE=release
       - BUGSNAG_API_KEY=$BUGSNAG_API_KEY
       - BUGSNAG_APP_TYPE=api

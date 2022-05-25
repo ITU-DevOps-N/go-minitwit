@@ -265,6 +265,12 @@ func main() {
 		Latest(c)
 		c.JSON(200, "Welcome to Go MiniTwit API!")
 	}))
+	
+	router.GET("/version", (func(c *gin.Context) {
+		Latest(c)
+		c.Data(200, "application/json; charset=utf-8", []byte(os.Getenv("VERSION")))
+	}))
+	
 	router.POST("/register", SignUp)
 
 	// /msgs/*param means that param is optional
