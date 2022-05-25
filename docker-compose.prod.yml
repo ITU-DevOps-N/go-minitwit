@@ -43,7 +43,7 @@ services:
     deploy:
       replicas: 2
       update_config:
-        delay: 10sdocker swarm join-token worker -q
+        delay: 10s
         order: start-first
       placement:
         constraints:
