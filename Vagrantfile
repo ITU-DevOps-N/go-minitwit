@@ -46,6 +46,8 @@ Vagrant.configure("2") do |config|
         sudo usermod -aG docker ${USER}
         sudo apt install -y docker-compose
 
+        git config --global user.email "minitwit@example.com"
+        git config --global user.name "Minitwit"
         git clone https://github.com/ITU-DevOps-N/go-minitwit.git
 
         ### Docker Swarm Cluster
