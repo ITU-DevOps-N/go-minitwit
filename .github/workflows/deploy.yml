@@ -35,3 +35,4 @@ jobs:
           docker pull itudevops/go-minitwit-api:$VER
           docker stack deploy --compose-file docker-compose.prod.yml minitwit
           docker service scale minitwit_api=4 minitwit_web=4
+
