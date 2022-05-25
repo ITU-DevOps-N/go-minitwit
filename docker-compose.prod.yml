@@ -1,11 +1,31 @@
 version: "3.7"
 
+networks:
+  elk:
+  main:
+    name: minitwit-network
+
+
+volumes:
+  grafana-data:
+  elk_elasticsearch_data:
+  elk_kibana_data:
+
 services:
   web:
     image: itudevops/go-minitwit:TAG
-    container_name: minitwit_web
+    deploy:
+      replicas: 1
+      update_config:
+        delay: 10s
+        order: start-first
+      placement:
+        constraints:
+          - "node.role==manager"
     restart: always
     environment:
+      - VERSION=TAG
+      - GIN_MODE=release
       - BUGSNAG_API_KEY=$BUGSNAG_API_KEY
       - BUGSNAG_APP_TYPE=web
       - DB_PASS=$DB_PASS
@@ -15,15 +35,23 @@ services:
       - DB_DATABASE=$DB_DATABASE
     ports:
         - "80:80"
-    links:
-      - grafana
-      - prometheus
+    networks:
+      - main
 
   api:
-    container_name: minitwit_api
     image: itudevops/go-minitwit-api:TAG
+    deploy:
+      replicas: 2
+      update_config:
+        delay: 10sdocker swarm join-token worker -q
+        order: start-first
+      placement:
+        constraints:
+          - "node.role==manager"
     restart: always
     environment:
+      - VERSION=TAG
+      - GIN_MODE=release
       - BUGSNAG_API_KEY=$BUGSNAG_API_KEY
       - BUGSNAG_APP_TYPE=api
       - DB_PASS=$DB_PASS
@@ -33,25 +61,84 @@ services:
       - DB_DATABASE=$DB_DATABASE
     ports:
         - "8080:8080"
-    links:
-      - grafana
-      - prometheus
+    networks:
+      - main
   
   prometheus:
     image: prom/prometheus
-    container_name: prometheus
     volumes:
       - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
-    links:
-      - grafana
-      - minitwit-api
-      - minitwit-web
+    deploy:
+      placement:
+        constraints:
+          - "node.role==manager"
+    networks:
+      - main
     ports:
       - "9090:9090"
 
   grafana:
     image: grafana/grafana:4.5.2
-    links:
-      - prometheus
+    volumes:
+      - grafana-data:/var/lib/grafana
+    deploy:
+      placement:
+        constraints:
+          - "node.role==worker"
     ports:
-      - "3000:3000"  
+      - "3000:3000"
+    networks:
+      - main
+
+  filebeat:
+    image: docker.elastic.co/beats/filebeat:7.2.0
+    user: root
+    logging:
+      driver: none
+    command: filebeat -e -strict.perms=false
+    deploy:
+      mode: global
+    volumes:
+      - ./filebeat.yml:/usr/share/filebeat/filebeat.yml:ro
+      - /var/lib/docker:/var/lib/docker:ro
+      - /var/run/docker.sock:/var/run/docker.sock
+    depends_on:
+      - elasticsearch
+    networks:
+      - elk
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:7.2.0
+    environment:
+      elasticsearch.hosts: '["http://elasticsearch:9200"]'
+    volumes:
+      - elk_kibana_data:/usr/share/kibana/data
+    deploy:
+      placement:
+        constraints:
+          - "node.role==worker"
+    ports:
+      - 5601:5601
+    depends_on:
+      - elasticsearch
+    networks:
+      - elk
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.2.0
+    ports:
+      - 9200:9200
+    volumes:
+      - elk_elasticsearch_data:/usr/share/elasticsearch/data
+    environment:
+        - cluster.name=docker-logs-elk-cluster
+        - xpack.security.enabled=false
+        - bootstrap.memory_lock=true
+        - ES_JAVA_OPTS=-Xms256m -Xmx256m
+        - discovery.type=single-node
+    deploy:
+      placement:
+        constraints:
+          - "node.role==worker"
+    networks:
+      - elk

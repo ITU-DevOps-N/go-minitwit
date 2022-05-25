@@ -183,7 +183,11 @@ func Unfollow(user string, to_unfollow string) *gorm.DB {
 	return err
 }
 
+func sanitize(s string) string {
+    return strings.ToValidUTF8(s, "")
+}
 func AddMessage(user string, message string) {
+	message = sanitize(message)
 	t := time.Now().Format(time.RFC822)
 	time_now, _ := time.Parse(time.RFC822, t)
 	DB.Create(&model.Message{Author: user, Text: message, CreatedAt: time_now})
@@ -261,6 +265,12 @@ func main() {
 		Latest(c)
 		c.JSON(200, "Welcome to Go MiniTwit API!")
 	}))
+	
+	router.GET("/version", (func(c *gin.Context) {
+		Latest(c)
+		c.Data(200, "application/json; charset=utf-8", []byte(os.Getenv("VERSION")))
+	}))
+	
 	router.POST("/register", SignUp)
 
 	// /msgs/*param means that param is optional

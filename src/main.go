@@ -12,6 +12,7 @@ import (
 	"fmt"
 	"html/template"
 	"time"
+	"os"
 
 	// All of the below imports share the same package i.e. we could have
 	// used the follow to access all functions.
@@ -84,6 +85,9 @@ func main() {
 
 	database.SetupDB()
 	router.GET("/", controller.Timeline)
+	router.GET("/version", (func(c *gin.Context) {
+		c.Data(200, "application/json; charset=utf-8", []byte(os.Getenv("VERSION")))
+	}))
 	router.GET("/public_timeline", controller.Timeline)
 	router.GET("/user_timeline", controller.UserTimeline)
 	router.GET("/register", controller.Register)
