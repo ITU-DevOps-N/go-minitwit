@@ -1,4 +1,5 @@
-name: Static analysis
+---
+name: Continuous Integration
 
 on:
   pull_request:
