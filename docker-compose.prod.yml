@@ -81,7 +81,7 @@ services:
     deploy:
       placement:
         constraints:
-          - "node.role==manager"
+          - "node.role==worker"
     ports:
       - "3000:3000"
     networks:
@@ -123,24 +123,17 @@ services:
     image: docker.elastic.co/elasticsearch/elasticsearch:7.2.0
     ports:
       - 9200:9200
-    volumes: 
+    volumes:
       - elk_elasticsearch_data:/usr/share/elasticsearch/data
     environment:
         - cluster.name=docker-logs-elk-cluster
         - xpack.security.enabled=false
         - bootstrap.memory_lock=true
-        - ES_JAVA_OPTS=-Xms1g -Xmx1g
+        - ES_JAVA_OPTS=-Xms256m -Xmx256m
         - discovery.type=single-node
     deploy:
       placement:
         constraints:
           - "node.role==worker"
-    ulimits:
-      memlock:
-        soft: -1
-        hard: -1
-      nofile:
-        soft: 65536
-        hard: 65536
     networks:
       - elk
