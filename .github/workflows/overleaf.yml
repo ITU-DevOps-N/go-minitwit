@@ -24,20 +24,15 @@ jobs:
       - name: Compile LaTeX document
         uses: xu-cheng/latex-action@v2
         with:
-          root_file: report/test.tex
-          run: |
-            cd ./report
-            pdflatex main
-            biber main
-            pdflatex main
-            pdflatex main
-            latexmk -c
-            cd ..
+          root_file: test.tex
+          working_directory: report
+
 
       - name: Move PDF inside build
+        working-directory: report
         run: |
-          mkdir report/build
-          mv main.pdf report/build/report.pdf
+          mkdir build
+          mv main.pdf build/report.pdf
 
       - name: Commit files
         run: |
