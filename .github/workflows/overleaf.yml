@@ -24,7 +24,8 @@ jobs:
       - name: Compile LaTeX document
         uses: xu-cheng/latex-action@v2
         with:
-          root_file: report/main.tex
+          root_file: report/*.tex
+          glob_root_file: true
           run: |
             cd ./report
             pdflatex main
