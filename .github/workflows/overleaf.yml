@@ -1,0 +1,32 @@
+---
+name: Overleaf
+
+on:
+  push:
+    branches: [ main, develop ]
+
+jobs:
+
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Download custom template
+        run: |
+          rm -rf report
+          git clone https://git.overleaf.com/6270e1b6c22fe86d40f0195f
+          mv 6270e1b6c22fe86d40f0195f report
+          rm -rf report/.git
+
+      - name: Compile LaTeX document
+        uses: xu-cheng/latex-action@v2
+        with:
+          root_file: report/main.tex
+
+      - name: Download custom template
+        run: |
+          mkdir report/build
+          mv report/main.pdf report/build/report.pdf
