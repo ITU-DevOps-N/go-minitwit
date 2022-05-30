@@ -1,0 +1,107 @@
+\documentclass[a4paper]{article}
+\usepackage[margin=1in]{geometry} % full-width
+
+% Unicode
+\usepackage[utf8]{inputenc}
+\usepackage{hyperref}
+\hypersetup{
+	unicode,
+%	colorlinks,
+%	breaklinks,
+%	urlcolor=cyan, 
+%	linkcolor=blue, 
+	pdfauthor={Alexander Palsson, Emil Krogsgaard Ravn, Gianmarco Murru, Henrik Bellsund, Tor Arnth Petersen},
+	pdftitle={DevOps, Software Evolution and Software Maintenance},
+	pdfsubject={DevOps},
+	pdfkeywords={devops, software development, maintenance and evolution of software},
+	pdfproducer={LaTeX}, % IGNORE
+	pdfcreator={pdflatex} % IGNORE
+}
+
+% AMS Packages
+\usepackage{amsmath}
+\usepackage{amsthm}
+\usepackage{amssymb}
+
+% Show references in table of contents
+\usepackage[nottoc,numbib]{tocbibind}
+
+% Headings and footer
+\usepackage{lastpage}
+\usepackage{fancyhdr}
+
+% Sideways figure for large appendice images
+\usepackage{rotating}
+\usepackage{tikz}
+
+% Natbib
+\usepackage[sort&compress,numbers,square]{natbib}
+\bibliographystyle{bibnat}
+
+% Proper URL handling
+\usepackage{xurl}
+
+% Theorem, Lemma, etc
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{claim}{Claim}[theorem]
+\newtheorem{axiom}[theorem]{Axiom}
+\newtheorem{conjecture}[theorem]{Conjecture}
+\newtheorem{fact}[theorem]{Fact}
+\newtheorem{hypothesis}[theorem]{Hypothesis}
+\newtheorem{assumption}[theorem]{Assumption}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{criterion}[theorem]{Criterion}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{example}[theorem]{Example}
+\newtheorem{remark}[theorem]{Remark}
+\newtheorem{problem}[theorem]{Problem}
+\newtheorem{principle}[theorem]{Principle}
+
+\usepackage{graphicx, color}
+\hypersetup{pdfborder=0 0 0}
+
+%\usepackage[linesnumbered,ruled,vlined,commentsnumbered]{algorithm2e} % use algorithm2e for typesetting algorithms
+\usepackage{algorithm, algpseudocode} % use algorithm and algorithmicx for typesetting algorithms
+\usepackage{mathrsfs} % for \mathscr command
+\usepackage{lipsum}
+% Comments
+\usepackage{comment}
+\usepackage{todonotes}
+
+% Header with course name and footer with page numbering
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L,RO]{BSDSESM1KU}
+\fancyhead[L,LO]{DevOps, Software Evolution and Software Maintenance}
+\fancyfoot[RO]{Page \thepage\ of \pageref{LastPage}}
+\fancyfoot[L, LO]{MSc. Computer Science}
+\renewcommand{\headrulewidth}{0.5pt}
+\renewcommand{\footrulewidth}{0.5pt}  
+
+% Author(s) info
+\title{DevOps, Software Evolution and Software Maintenance}
+\author{Alexander Palsson$^1$ \and Emil Krogsgaard Ravn$^2$ \and Gianmarco \ Murru$^3$\\[-1em] \and Henrik Bellsund$^4$ \and Tor Arnth Petersen$^5$}
+        
+\date{
+    \textbf{IT University of Copenhagen} \\ [1ex]
+    \texttt{\{$^1$apal, $^2$erav, $^3$gimu, $^4$hbel, $^5$toap\}@itu.dk}\\ [2ex] 
+	\today
+}
+
+\setlength{\parindent}{0cm}
+\usepackage{parskip}
+
+\begin{document}
+	\maketitle
+	\tableofcontents
+	\pagenumbering{gobble}
+	\include{01-systemperspective}
+	\include{02-processperspective}
+	\include{03-lessonslearnedperspective}
+	\bibliography{bibliography}
+	\include{appendices}
+\end{document}
