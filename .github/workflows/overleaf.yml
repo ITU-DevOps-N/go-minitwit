@@ -32,7 +32,7 @@ jobs:
         working-directory: report
         run: |
           mkdir build
-          mv main.pdf build/report.pdf
+          mv test.pdf build/report.pdf
 
       - name: Commit files
         run: |
