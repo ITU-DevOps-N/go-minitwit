@@ -2,7 +2,7 @@
 
 PATH_KEY="~/.ssh/digitalocean"
 
-echo "Insert the last tag for the release (e.g. '32'):"
+echo "Insert the last tag for the release (e.g. '1'):"
 read TAG
 echo "Insert DIGITAL_OCEAN_TOKEN:"
 read DIGITAL_OCEAN_TOKEN
@@ -16,7 +16,7 @@ export SWARM_MANAGER_IP=`curl -s GET \
     -H "Content-Type: application/json" \
     -H "Authorization: Bearer $DIGITAL_OCEAN_TOKEN"\
     "https://api.digitalocean.com/v2/droplets" \
-    | jq -r '.droplets|.[]|select(.name == "minitwit-manager-1")|.networks.v4|.[]|select(.type == "public")|.ip_address'`
+    | jq -r '.droplets|.[]|select(.name == "minitwit-manager")|.networks.v4|.[]|select(.type == "public")|.ip_address'`
 
 echo "SWARM_MANAGER_IP=$SWARM_MANAGER_IP"
 
@@ -25,15 +25,28 @@ export WORKER1_IP=`curl -s GET \
     -H "Content-Type: application/json" \
     -H "Authorization: Bearer $DIGITAL_OCEAN_TOKEN"\
     "https://api.digitalocean.com/v2/droplets" \
-    | jq -r '.droplets|.[]|select(.name == "minitwit-worker1-1")|.networks.v4|.[]|select(.type == "public")|.ip_address'`
+    | jq -r '.droplets|.[]|select(.name == "minitwit-worker1")|.networks.v4|.[]|select(.type == "public")|.ip_address'`
 
 echo "WORKER1_IP=$WORKER1_IP"
+
+export WORKER2_IP=`curl -s GET \
+    -H "Content-Type: application/json" \
+    -H "Authorization: Bearer $DIGITAL_OCEAN_TOKEN"\
+    "https://api.digitalocean.com/v2/droplets" \
+    | jq -r '.droplets|.[]|select(.name == "minitwit-worker2")|.networks.v4|.[]|select(.type == "public")|.ip_address'`
+
+echo "WORKER2_IP=$WORKER2_IP"
 
 echo "Getting join token from minitwit-manager"
 export WORKER_TOKEN=`ssh -i $PATH_KEY -o "StrictHostKeyChecking no" root@$SWARM_MANAGER_IP "docker swarm join-token worker -q"`
 echo "WORKER_TOKEN=$WORKER_TOKEN"
+
 echo "Joining minitwit-worker1 to minitwit-manager swarm cluster"
 ssh -i $PATH_KEY -o "StrictHostKeyChecking no" root@$WORKER1_IP "docker swarm join --token $WORKER_TOKEN $SWARM_MANAGER_IP:2377"
+
+echo "Joining minitwit-worker2 to minitwit-manager swarm cluster"
+ssh -i $PATH_KEY -o "StrictHostKeyChecking no" root@$WORKER2_IP "docker swarm join --token $WORKER_TOKEN $SWARM_MANAGER_IP:2377"
+
 
 echo "Checking docker swarm cluster status"
 ssh -i $PATH_KEY -o "StrictHostKeyChecking no" root@$SWARM_MANAGER_IP "docker node ls"

@@ -1,4 +1,5 @@
-name: Docker Image CI
+---
+name: Continuous Deployment
 
 on:
   push:
@@ -12,7 +13,7 @@ jobs:
 
     steps:
       -
-        name: Checkout 
+        name: Checkout
         uses: actions/checkout@v2
       -
         name: Login to Docker Hub
@@ -45,7 +46,7 @@ jobs:
           tags: ${{ secrets.DOCKER_USERNAME }}/go-minitwit-api:${{github.run_number}}
           cache-from: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/go-minitwit-api:apibuildcache
           cache-to: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/go-minitwit-api:apibuildcache,mode=max
-      - 
+      -
         name: executing remote ssh commands using password
         uses: appleboy/ssh-action@master
         env:
@@ -66,3 +67,7 @@ jobs:
             docker pull itudevops/go-minitwit:${{github.run_number}}
             docker pull itudevops/go-minitwit-api:${{github.run_number}}
             docker stack deploy --compose-file docker-compose.prod.yml minitwit
+      -
+        name: wait for new release version
+        run: ./wait_for_release.sh http://www.go-minitwit.duckdns.org/version ${{github.run_number}}
+        shell: bash

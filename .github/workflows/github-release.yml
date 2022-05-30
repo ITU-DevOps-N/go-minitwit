@@ -1,0 +1,27 @@
+name: 🚀 GitHub release
+
+on:
+  workflow_run:
+    workflows: ["Continuous Deployment"]
+    types:
+      - completed
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: Get the latest version from Minitwit endpoint
+        id: latest_version
+        run: | 
+          echo RELEASE_VERSION="$(curl http://www.go-minitwit.duckdns.org/version)" >> $GITHUB_ENV
+
+
+      - name: Create release on GitHub with tag version from Docker Hub
+        uses: softprops/action-gh-release@v1
+        id: update_version
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: "v${{ env.RELEASE_VERSION }}"
+          generate_release_notes: true 
