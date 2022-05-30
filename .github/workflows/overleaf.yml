@@ -25,6 +25,14 @@ jobs:
         uses: xu-cheng/latex-action@v2
         with:
           root_file: report/main.tex
+          run: |
+            cd ./report
+            pdflatex main
+            biber main
+            pdflatex main
+            pdflatex main
+            latexmk -c
+            cd ..
 
       - name: Move PDF inside build
         run: |
