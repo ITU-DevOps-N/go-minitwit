@@ -34,7 +34,7 @@ jobs:
       - name: Move PDF inside build
         run: |
           mkdir report/build
-          mv report/main.pdf report/build/report.pdf
+          mv main.pdf report/build/report.pdf
 
       - name: Commit files
         run: |
