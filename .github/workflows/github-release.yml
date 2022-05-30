@@ -1,9 +1,10 @@
 name: 🚀 GitHub release
 
 on:
-  push:
-   branches:
-     - main
+  workflow_run:
+    workflows: ["Continuous Deployment"]
+    types:
+      - completed
 
 jobs:
   release:
