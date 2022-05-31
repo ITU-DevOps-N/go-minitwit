@@ -95,13 +95,15 @@
 \setlength{\parindent}{0cm}
 \usepackage{parskip}
 
+
 \begin{document}
 	\maketitle
 	\tableofcontents
-	\pagenumbering{gobble}
-	\include{01-systemperspective}
-	\include{02-processperspective}
-	\include{03-lessonslearnedperspective}
+	\pagenumbering{gobble}	
+	\input{01-systemperspective.tex}
+	\input{02-processperspective.tex}
+	\input{03-lessonslearnedperspective.tex}
+	\newpage
 	\bibliography{bibliography}
 	\include{appendices}
 \end{document}
