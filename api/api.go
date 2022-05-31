@@ -89,6 +89,9 @@ func ValidRegistration(c *gin.Context, username string, email string, password s
 }
 
 func SignUp(c *gin.Context) {
+	//If directories are unreferenced then they should be removed from the web root and/or the application directory.
+	// reponse: HTTP/1.1 301 Moved Permanently
+
 	Latest(c)
 	var json model.RegisterForm
 
@@ -306,7 +309,6 @@ func main() {
 			c.JSON(http.StatusOK, gin.H{"data": data})
 		}
 	}))
-	// messages_per_user (request method == POST) from minitwit_sim_api.py
 	router.POST("/msgs/:usr", (func(c *gin.Context) {
 		Latest(c)
 		user := strings.Trim(c.Param("usr"), "/")
