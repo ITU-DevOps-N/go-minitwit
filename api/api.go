@@ -99,6 +99,8 @@ func SignUp(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
+	// We have auto-complete here
+	//Should maybe be fixed in the html: The first and most secure location is to disable the autocomplete attribute on the <form> HTML tag.
 
 	username := json.Username
 	email := json.Email
