@@ -21,8 +21,9 @@ db/
 # VS Code Remote Containers
 .devcontainer
 
-# MacOS
+# MacOS 
 .DS_Store
 
 # minitwit secrets
 .minitwit-secrets.env
+
