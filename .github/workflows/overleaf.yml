@@ -1,0 +1,48 @@
+---
+name: Overleaf
+
+on:
+  push:
+    branches: [ main, develop ]
+
+jobs:
+
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Download report
+        run: |
+          rm -rf report
+          git clone https://${{ secrets.OVERLEAF_USER }}:${{ secrets.OVERLEAF_PASSWORD }}@git.overleaf.com/6270e1b6c22fe86d40f0195f
+          mv 6270e1b6c22fe86d40f0195f report
+          rm -rf report/.git
+
+      - name: Compile LaTeX document
+        uses: xu-cheng/latex-action@v2
+        with:
+          root_file: test.tex
+          working_directory: report
+
+
+      - name: Move PDF inside build
+        working-directory: report
+        run: |
+          mkdir build
+          mv test.pdf build/report.pdf
+
+      - name: Commit files
+        run: |
+          git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git commit -m "Add changes" -a
+
+      - name: Push changes
+        uses: ad-m/github-push-action@master
+        with:
+          github_token: ${{ secrets.GH_TOKEN }}
+          branch: main
+          force: true
