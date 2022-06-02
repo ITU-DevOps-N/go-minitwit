@@ -10,8 +10,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
-          with:
-            persist-credentials: false
+        with:
+          persist-credentials: false
       - name: Update diagram
         uses: githubocto/repo-visualizer@main
         with:
