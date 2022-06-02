@@ -96,7 +96,7 @@ For logging, we use the \textit{ELK stack} to store, search, ingest and visualiz
 Finally, we use Kibana to visualize the filtered data to dashboards, where the data can be analyzed into for example graphs, charts and heatmaps.
 
 \subsection{Brief results of the security assessment}
-We used Arachni to  do a penetration test of our API, which showed that we have some issues with cross-site-forgery, unencrypted password forms, common directories, password fields with auto-complete, and missing X-frame Options header\footnote{Some of these issues were fixed}. However, these issues were either reported once or twice during a 24 hours penetration testing and the other group who were penetrating testing our API were not able to find any vulnerabilities. The entire penetration report can be found here: \url{https://www.arachni-scanner.com/reports/report.html/#!/summary/charts}. (See full Risk identification, Risk analysis and pentest here: \url{https://github.com/ITU-DevOps-N/go-minitwit/wiki/Security}) 
+We used Arachni to  do a penetration test of our API, which showed that we have some issues with cross-site-forgery, unencrypted password forms, common directories, password fields with auto-complete, and missing X-frame Options header\footnote{Some of these issues were fixed}. However, these issues were either reported once or twice during a 24 hours penetration testing and the other group who were penetrating testing our API were not able to find any vulnerabilities.  \footnote{See full Risk identification and analysis here \cite{security} and pen-test report here \cite{pen-test}}
 
 
 \subsection{Applied strategy for scaling and load balancing}
