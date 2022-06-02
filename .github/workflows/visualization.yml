@@ -10,17 +10,19 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
-        with:
-          #token: ${{ secrets.PAT }}
-          persist-credentials: false
+      - run: git remote -v
+
+        # with:
+        #   #token: ${{ secrets.PAT }}
+        #   persist-credentials: false
       - name: Update diagram
         uses: githubocto/repo-visualizer@main
         with:
           excluded_paths: "ignore,.github,.idea"
           #github_token: ${{ secrets.GH_TOKEN }}
-      - name: Push changes
-        uses: ad-m/github-push-action@master
-        with:
-          github_token: ${{ secrets.GH_TOKEN }}
-          branch: develop
-          force: true
+      # - name: Push changes
+      #   uses: ad-m/github-push-action@master
+      #   with:
+      #     github_token: ${{ secrets.GH_TOKEN }}
+      #     branch: develop
+      #     force: true
