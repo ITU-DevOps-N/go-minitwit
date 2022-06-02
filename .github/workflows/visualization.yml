@@ -12,6 +12,8 @@ jobs:
         uses: actions/checkout@v2
         with: 
           github_token: ${{ secrets.GH_TOKEN }}
+          force: true
+
       - run: git remote -v
 
         # with:
