@@ -10,7 +10,10 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
+          with:
+            persist-credentials: false
       - name: Update diagram
         uses: githubocto/repo-visualizer@main
         with:
           excluded_paths: "ignore,.github,.idea"
+          force: true
