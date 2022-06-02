@@ -69,5 +69,4 @@ Once you have the environment variables, set it up like this:
 
 
 ### Visualization
-[![Visualization of the codebase](./diagram.svg)](https://octo-repo-visualization.vercel.app/?repo=integerman%2FVisualizingCode)
-[View interactive Diagram](https://octo-repo-visualization.vercel.app/?repo=integerman%2FVisualizingCode)
+![Visualization of the codebase](./diagram.svg)
