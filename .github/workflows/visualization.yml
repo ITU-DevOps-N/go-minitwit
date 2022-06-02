@@ -16,3 +16,5 @@ jobs:
         uses: githubocto/repo-visualizer@main
         with:
           excluded_paths: "ignore,.github,.idea"
+          github_token: ${{ secrets.GH_TOKEN }}
+          #branch: main
