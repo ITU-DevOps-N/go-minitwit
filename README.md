@@ -65,3 +65,8 @@ Once you have the environment variables, set it up like this:
 1. Create a file on your system that contains the environment variables. This SHOULD not be at the project level or anywhere in version control. Example: `~/secrets/go-minitwit`
 2. To expose the variables to the running terminal session, do `source ~/secrets/go-minitwit`
 3. Confirm that the variables are exposed, example `echo $DOCKER_USERNAME`
+
+
+
+### Visualization
+![Visualization of the codebase](./diagram.svg)

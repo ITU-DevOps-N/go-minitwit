@@ -89,6 +89,9 @@ func ValidRegistration(c *gin.Context, username string, email string, password s
 }
 
 func SignUp(c *gin.Context) {
+	//If directories are unreferenced then they should be removed from the web root and/or the application directory.
+	// reponse: HTTP/1.1 301 Moved Permanently
+
 	Latest(c)
 	var json model.RegisterForm
 
@@ -96,6 +99,8 @@ func SignUp(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
+	// We have auto-complete here
+	//Should maybe be fixed in the html: The first and most secure location is to disable the autocomplete attribute on the <form> HTML tag.
 
 	username := json.Username
 	email := json.Email
@@ -184,9 +189,21 @@ func Unfollow(user string, to_unfollow string) *gorm.DB {
 }
 
 func sanitize(s string) string {
-    return strings.ToValidUTF8(s, "")
+	return strings.ToValidUTF8(s, "")
 }
 func AddMessage(user string, message string) {
+	//fix cross site forgery here
+	//{
+	// r := gin.Default()
+	// store := cookie.NewStore([]byte("secret"))
+	// r.Use(sessions.Sessions("mysession", store))
+	// r.Use(csrf.Middleware(csrf.Options{
+	// 	Secret: "secret123",
+	// 	ErrorFunc: func(c *gin.Context) {
+	// 		c.String(400, "CSRF token mismatch")
+	// 		c.Abort()
+	// 	},
+	// }))
 	message = sanitize(message)
 	t := time.Now().Format(time.RFC822)
 	time_now, _ := time.Parse(time.RFC822, t)
@@ -265,12 +282,12 @@ func main() {
 		Latest(c)
 		c.JSON(200, "Welcome to Go MiniTwit API!")
 	}))
-	
+
 	router.GET("/version", (func(c *gin.Context) {
 		Latest(c)
 		c.Data(200, "application/json; charset=utf-8", []byte(os.Getenv("VERSION")))
 	}))
-	
+
 	router.POST("/register", SignUp)
 
 	// /msgs/*param means that param is optional
@@ -294,7 +311,6 @@ func main() {
 			c.JSON(http.StatusOK, gin.H{"data": data})
 		}
 	}))
-	// messages_per_user (request method == POST) from minitwit_sim_api.py
 	router.POST("/msgs/:usr", (func(c *gin.Context) {
 		Latest(c)
 		user := strings.Trim(c.Param("usr"), "/")

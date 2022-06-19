@@ -1,0 +1,32 @@
+name: Create diagram
+on:
+  workflow_dispatch: {}
+  push:
+    branches: [ develop ]
+
+jobs:
+  get_data:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+        with: 
+          github_token: ${{ secrets.GH_TOKEN }}
+          force: true
+
+      - run: git remote -v
+
+        # with:
+        #   #token: ${{ secrets.PAT }}
+        #   persist-credentials: false
+      - name: Update diagram
+        uses: githubocto/repo-visualizer@main
+        with:
+          excluded_paths: "ignore,.github,.idea"
+          #github_token: ${{ secrets.GH_TOKEN }}
+      # - name: Push changes
+      #   uses: ad-m/github-push-action@master
+      #   with:
+      #     github_token: ${{ secrets.GH_TOKEN }}
+      #     branch: develop
+      #     force: true
