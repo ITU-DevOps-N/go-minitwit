@@ -20,8 +20,9 @@ jobs:
         #   #token: ${{ secrets.PAT }}
         #   persist-credentials: false
       - name: Update diagram
-        uses: githubocto/repo-visualizer@main
+        uses: githubocto/repo-visualizer@0.7.1
         with:
+          output_file: "images/diagram.svg"
           excluded_paths: "ignore,.github,.idea"
           #github_token: ${{ secrets.GH_TOKEN }}
       # - name: Push changes
