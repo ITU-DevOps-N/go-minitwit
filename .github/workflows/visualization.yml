@@ -19,5 +19,5 @@ jobs:
       - name: Update diagram
         uses: githubocto/repo-visualizer@main
         with:
-          excluded_paths: "ignore,.github,.idea,.bib,src/.DS_Store,pen_report.html,report,Drawio,docs"
+          excluded_paths: "ignore,.github,.idea,.bib,src/.DS_Store,pen_report.html,report,Drawio,docs,src/web/.DS_Store, licens, README.md"
      
