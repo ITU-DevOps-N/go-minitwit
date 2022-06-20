@@ -6,7 +6,6 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	// rename packe for easier read
 	"net/http"
 
 	database "github.com/ITU-DevOps-N/go-minitwit/src/database"
@@ -18,7 +17,6 @@ func GetMessages(user string, page string) []map[string]interface{} {
 
 	offset, messagesPerPage := LimitMessages(page)
 
-	
 	if user == "" {
 		database.DB.Table("messages").Limit(messagesPerPage).Order("created_at desc").Offset(offset).Find(&results)
 	} else {

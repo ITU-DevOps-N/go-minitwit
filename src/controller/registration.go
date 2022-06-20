@@ -1,12 +1,12 @@
 package controllers
 
 import (
-	"github.com/gin-gonic/gin"
-	// rename packe for easier read
 	"net/http"
 	"net/mail"
 	"net/url"
 	"strings"
+
+	"github.com/gin-gonic/gin"
 
 	database "github.com/ITU-DevOps-N/go-minitwit/src/database"
 	model "github.com/ITU-DevOps-N/go-minitwit/src/models"

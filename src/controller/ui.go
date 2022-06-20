@@ -9,7 +9,6 @@ import (
 func Timeline(c *gin.Context) {
 	user, _ := c.Cookie("token")
 
-	// /public_timeline?page=0
 	page := c.DefaultQuery("page", "0")
 
 	if user == "" {

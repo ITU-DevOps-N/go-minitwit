@@ -1,11 +1,11 @@
 package controllers
 
 import (
-	"github.com/gin-gonic/gin"
-	// rename packe for easier read
 	"net/http"
 	"net/url"
 	"strings"
+
+	"github.com/gin-gonic/gin"
 
 	database "github.com/ITU-DevOps-N/go-minitwit/src/database"
 	model "github.com/ITU-DevOps-N/go-minitwit/src/models"
@@ -38,7 +38,6 @@ func ValidUser(username string, password string) bool {
 
 func Login(c *gin.Context) {
 	c.Request.ParseForm()
-	// session := sessions.Default(c)
 
 	username := strings.ToLower(c.Request.PostForm.Get("username"))
 	password := c.Request.PostForm.Get("password")
